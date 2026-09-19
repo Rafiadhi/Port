@@ -1,0 +1,1063 @@
+<!- ============================================================
+     PORTOFOLIO — INDEX.HTML (UPGRADED)
+     Paste ke panel HTML di CodePen.  
+     ============================================================ -->
+
+<!-- FILM GRAIN (SVG turbulence, di-refresh oleh JS untuk efek flicker halus) -->
+<svg id="grainSvg" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9998;opacity:.05;mix-blend-mode:overlay;">
+  <filter id="grainFilter">
+    <feTurbulence id="grainTurb" type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#grainFilter)"/>
+</svg>
+
+<!-- MASK LINGKARAN "NOISE" — dipakai di gambar overlay Halaman 1, supaya
+     tepi bulatan yang mengikuti kursor tidak rapi/lurus tapi kasar &
+     bertekstur (seperti sobekan/noise), bukan lingkaran mulus biasa. -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+  <defs>
+    <filter id="noisyEdgeFilter" x="-60%" y="-60%" width="220%" height="220%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="3" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="34" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <mask id="cursorNoiseMask" maskUnits="userSpaceOnUse" x="-3000" y="-3000" width="9000" height="9000">
+      <rect x="-3000" y="-3000" width="9000" height="9000" fill="black"/>
+      <circle id="cursorMaskCircle" cx="0" cy="0" r="150" fill="white" filter="url(#noisyEdgeFilter)"/>
+    </mask>
+  </defs>
+</svg>
+
+<!-- CUSTOM CURSOR -->
+<div id="cursorDot"></div>
+<div id="cursorRing"><span id="cursorLabel"></span></div>
+
+<!-- PRELOADER -->
+<div id="preloader">
+  <div class="preloader-count"><span id="preloaderPercent">0</span>%</div>
+  <div class="preloader-bar"><div id="preloaderFill"></div></div>
+  <div class="preloader-tag">MEMUAT PORTFOLIO</div>
+</div>
+
+<!-- SCROLL PROGRESS DOTS -->
+<nav id="scrollDots">
+  <button data-target="slide0" data-cursor="01"></button>
+  <button data-target="slide1" data-cursor="02"></button>
+  <button data-target="slide2" data-cursor="03"></button>
+  <button data-target="page4" data-cursor="04"></button>
+</nav>
+
+<!-- PAGE 1 -->
+<section id="page1">
+  <!-- GAMBAR UTAMA (background, selalu tampil penuh) -->
+  <img id="page1BgImg" src="" alt="background halaman 1">
+
+  <!-- GAMBAR KE-2 (overlay, cuma kelihatan di dalam bulatan noise yang
+       mengikuti kursor — mirip efek di Profil 1, tapi TANPA efek 3D) -->
+  <img id="page1OverlayImg" src="" alt="overlay halaman 1">
+
+  <!-- overlay kegelapan: atur lewat variabel --page1-darkness di style.css -->
+  <div id="page1Darken"></div>
+
+  <button id="hiddenCircleBtn" aria-label="secret">
+    <img id="circleImg" src="" alt="">
+  </button>
+
+  <!-- TOMBOL START NOW — 2 PNG: default (bawah) & hover (atas, wipe kiri->kanan) -->
+  <button id="openPortfolioBtn" aria-label="Start Now">
+    <img class="start-btn-img start-btn-default" id="startBtnDefaultImg" src="" alt="Start Now">
+    <img class="start-btn-img start-btn-hover" id="startBtnHoverImg" src="" alt="">
+  </button>
+</section>
+
+<div id="circlePopupOverlay" class="popup-overlay hidden">
+  <div class="circle-popup-inner">
+    <img id="circlePopupImg" src="" alt="ilustrasi">
+    <button id="closeCirclePopup" class="close-x">&times;</button>
+  </div>
+</div>
+
+<div id="pixelTransition"></div>
+
+<!-- TEKS SAAT TRANSISI KLIK START NOW — tampil di atas animasi kotak pixel -->
+<div id="startTransitionText">
+  <span class="start-transition-text">wait a second!</span>
+</div>
+
+<main id="page2">
+  
+  <section class="profile-slide profile-slide--intro" id="slide0" data-index="0">
+    <!-- Tumpukan 3 lapis, semua ikut parallax 3D halus:
+         gambar 1 = background, gambar 2 = orang (langsung tampil),
+         gambar 3 = teks (baru muncul setelah tombol "tap to know me"
+         di bawah diklik & gif transisinya selesai). -->
+    <div class="profile-stack" id="profileStack">
+      <img class="profile-stack-img profile-stack-img-1" id="profileStackImg1" src="" alt="profil 1 background">
+      <img class="profile-stack-img profile-stack-img-2" id="profileStackImg2" src="" alt="profil 1 orang">
+      <img class="profile-stack-img profile-stack-img-3" id="profileStackImg3" src="" alt="profil 1 teks">
+
+      <!-- Tombol "tap to know me" — PNG kamu sendiri (bukan teks lagi) -->
+      <button class="profile-tap-btn" id="profileTapBtn" type="button" aria-label="Tap to know me">
+        <img id="profileTapBtnImg" src="" alt="tap to know me">
+      </button>
+
+      <!-- GIF transisi, main sebentar begitu tombol di atas diklik,
+           lalu gambar 3 (teks) muncul setelah gif ini selesai -->
+      <img class="profile-gif-transition" id="profileGifTransition" src="" alt="">
+    </div>
+
+    <div class="profile-contact">
+      <div class="contact-popup">
+        <a class="contact-icon-btn" href="#" target="_blank" rel="noopener" data-magnetic><img src="" alt="contact 1"></a>
+        <a class="contact-icon-btn" href="#" target="_blank" rel="noopener" data-magnetic><img src="" alt="contact 2"></a>
+        <a class="contact-icon-btn" href="#" target="_blank" rel="noopener" data-magnetic><img src="" alt="contact 3"></a>
+      </div>
+      <button class="contact-toggle-btn" type="button" data-cursor="KONTAK">
+        <img src="" alt="contact me">
+      </button>
+    </div>
+  </section>
+
+  <section class="profile-slide profile-slide--history" id="slide1" data-index="1">
+    <!-- Foto utama (laptop, buku, kamera) + 3 versi lain yang saling
+         gantian tampil saat kursor mengarah ke area masing-masing benda.
+         Semua gambar object-fit:contain (BUKAN cover) supaya TIDAK ke-crop
+         sama sekali, karena kamu sudah samakan ukurannya dengan gambar 1. -->
+    <div class="history-photo-wrap" id="historyPhotoWrap">
+      <img class="history-photo-img" id="historyImgBase" src="" alt="riwayat - laptop, buku, kamera">
+      <img class="history-photo-img" id="historyImgLaptop" src="" alt="riwayat - fokus laptop">
+      <img class="history-photo-img" id="historyImgCamera" src="" alt="riwayat - fokus kamera">
+      <img class="history-photo-img" id="historyImgBook" src="" alt="riwayat - fokus buku">
+
+      <!-- HOTSPOT (area klik tak kasat mata) — geser posisi/ukurannya di
+           style.css kalau belum pas nutupin benda di foto kamu -->
+      <button class="history-hotspot history-hotspot--laptop" id="hotspotLaptop" type="button" aria-label="Pengalaman Kerja"></button>
+      <button class="history-hotspot history-hotspot--book" id="hotspotBook" type="button" aria-label="Riwayat Sekolah"></button>
+      <button class="history-hotspot history-hotspot--camera" id="hotspotCamera" type="button" aria-label="Skills & Software"></button>
+    </div>
+
+    <!-- PANEL KIRI — dipakai gantian: "Pengalaman Kerja" (laptop, bisa
+         di-scroll) & "Riwayat Sekolah" (buku, cuma 4 baris, tidak perlu gede) -->
+    <div class="history-panel history-panel--left" id="panelLeft">
+      <button class="history-panel-close" id="panelLeftClose" aria-label="Tutup">&times;</button>
+      <h3 class="history-panel-title" id="panelLeftTitle">Pengalaman Kerja</h3>
+      <div class="history-panel-body" id="panelLeftBody"></div>
+    </div>
+
+    <!-- PANEL KANAN — "Skills & Software" (kamera), ada 2 sub-tab -->
+    <div class="history-panel history-panel--right" id="panelRight">
+      <button class="history-panel-close" id="panelRightClose" aria-label="Tutup">&times;</button>
+      <div class="history-panel-tabs">
+        <button class="history-tab-btn is-active" id="tabSkillsBtn" type="button">Skills</button>
+        <button class="history-tab-btn" id="tabSoftwareBtn" type="button">Software</button>
+      </div>
+      <div class="history-panel-body" id="panelRightBodySkills"></div>
+      <div class="history-panel-body" id="panelRightBodySoftware" hidden></div>
+    </div>
+  </section>
+
+  <section class="profile-slide" id="slide2" data-index="2">
+    <div class="profile-bg" style="background-image:url('')"></div>
+    <img class="profile-overlay" src="" alt="profil 2">
+    <img class="profile-overlay-alt" src="" alt="profil 2 alternatif">
+  </section>
+  <section id="page4" class="profile-slide">
+    <div id="splitDarken"></div>
+
+    <div class="split-box" id="boxLeft" data-cursor="LIHAT">
+      <div class="split-box-inner">
+        <img class="split-box-bg" src="" alt="graphic design bg">
+        <img class="split-box-bg-hover" src="" alt="graphic design bg hover">
+        <canvas class="split-box-pixel"></canvas>
+        <div class="split-box-label">
+          <span class="split-title">GRAPHIC DESIGNER</span>
+          <span class="split-sub">5-6 Years</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="split-box" id="boxRight" data-cursor="LIHAT">
+      <div class="split-box-inner">
+        <img class="split-box-bg" src="" alt="content creator bg">
+        <img class="split-box-bg-hover" src="" alt="content creator bg hover">
+        <canvas class="split-box-pixel"></canvas>
+        <div class="split-box-label">
+          <span class="split-title">CONTENT CREATOR</span>
+          <span class="split-sub">4-5 Years</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section id="leftSubpage" class="subpage hidden">
+  <!-- background reveal (gambar beda-beda per kategori), 2 layer buat crossfade halus.
+       Kalau tidak ada teks yang lagi di-hover, otomatis balik ke abu-abu gelap
+       polos (diatur lewat background-color di CSS #leftSubpage). -->
+  <div id="archiveBgA" class="archive-bg-layer"></div>
+  <div id="archiveBgB" class="archive-bg-layer"></div>
+  <div class="archive-darken"></div>
+  <div class="archive-bottom-fade"></div>
+
+  <button class="back-btn" data-cursor="KEMBALI"><img src="" alt="back"></button>
+  <h2 class="subpage-title">Design Archive</h2>
+
+  <!-- Daftar 9 kategori -- klik salah satu buka 1 halaman panjang (bisa
+       diisi banyak gambar), diatur lewat DESIGN_ARCHIVE_CATEGORIES di
+       script.js (cari komentar "GANTI DI SINI"). Kursor datang ke salah
+       satu teks -> background & kotak biru di belakang teks itu muncul,
+       teksnya sendiri TETAP PUTIH. Daftarnya di-scroll di dalam kotaknya
+       sendiri (posisi paling atas TIDAK ikut geser). -->
+  <div class="archive-cat-wrap">
+    <div class="archive-cat-list" id="archiveCatList">
+      <span class="archive-cat-line" data-cat="logo" role="button" tabindex="0">
+        <span class="archive-cat-box"></span>
+        <span class="archive-cat-text">Logo Design</span>
+      </span>
+      <span class="archive-cat-line" data-cat="brand" role="button" tabindex="0">
+        <span class="archive-cat-box"></span>
+        <span class="archive-cat-text">Brand Identity</span>
+      </span>
+      <span class="archive-cat-line" data-cat="poster" role="button" tabindex="0">
+        <span class="archive-cat-box"></span>
+        <span class="archive-cat-text">Poster Design</span>
+      </span>
+      <span class="archive-cat-line" data-cat="socialmedia" role="button" tabindex="0">
+        <span class="archive-cat-box"></span>
+        <span class="archive-cat-text">Social Media Design</span>
+      </span>
+      <span class="archive-cat-line" data-cat="carousel" role="button" tabindex="0">
+        <span class="archive-cat-box"></span>
+        <span class="archive-cat-text">Carousel Design</span>
+      </span>
+      <span class="archive-cat-line" data-cat="advertisement" role="button" tabindex="0">
+        <span class="archive-cat-box"></span>
+        <span class="archive-cat-text">Advertisement Design</span>
+      </span>
+      <span class="archive-cat-line" data-cat="campaign" role="button" tabindex="0">
+        <span class="archive-cat-box"></span>
+        <span class="archive-cat-text">Campaign Design</span>
+      </span>
+      <span class="archive-cat-line" data-cat="packaging" role="button" tabindex="0">
+        <span class="archive-cat-box"></span>
+        <span class="archive-cat-text">Packaging Design</span>
+      </span>
+      <span class="archive-cat-line" data-cat="digitalimaging" role="button" tabindex="0">
+        <span class="archive-cat-box"></span>
+        <span class="archive-cat-text">Digital Imaging</span>
+      </span>
+    </div>
+  </div>
+</section>
+
+<section id="rightSubpage" class="subpage hidden">
+  <button class="back-btn" data-cursor="KEMBALI"><img src="" alt="back"></button>
+
+  <h2 class="subpage-title">Content Archive</h2>
+
+  <!-- Daftar 20 brand, tiap baris = 1 tombol persegi panjang penuh lebar.
+       Isinya (gambar 1/gif/gambar 2 overlay per baris) dibuat otomatis
+       oleh JS dari array RIGHT_BRANDS -- cari komentar "GANTI DI SINI"
+       di script.js. -->
+  <div class="content-list" id="contentList"></div>
+</section>
+
+<div id="brandModal" class="popup-overlay hidden">
+  <button id="closeBrandModal" class="close-x" data-cursor="TUTUP">&times;</button>
+  <!-- Isi halaman modal (1 atau lebih, tergantung yang diklik) dibuat
+       otomatis oleh JS lewat openBrandModal() -->
+  <div id="brandModalTrack" class="brand-modal-track"></div>
+</div>
+
+<!-- MODAL EXPERIENCE / CLIENTS — halaman "Selected Brands".
+     Dibuka lewat klik "Experience / Clients" di closing1 (lihat openExperienceModal
+     di script.js). Kotak logonya dibuat otomatis oleh JS dari BRAND_LOGOS. -->
+<div id="experienceModal" class="popup-overlay hidden" role="dialog" aria-modal="true" aria-label="Selected Brands">
+  <button id="closeExperienceModal" class="close-x" data-cursor="TUTUP" aria-label="Tutup">&times;</button>
+  <div id="experienceModalTrack" class="experience-modal-track">
+    <section class="brands" id="brands">
+      <div class="brands__inner">
+        <header class="brands__header">
+          <h2 class="brands__title">Selected Brands</h2>
+          <p class="brands__desc">Sejumlah brand yang pernah mempercayakan visual mereka kepada saya, dari identitas sampai materi kampanye.</p>
+        </header>
+
+        <div class="brands__grid" id="brandsGrid"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- MODAL SERVICES & PRICING — halaman lengkap "Jasa Desain" (dulu index_pen.html).
+     Dibuka lewat klik "Services & Pricing" di closing1 (lihat openServicesModal di script.js).
+     Ditampilkan di dalam <iframe> supaya CSS/JS halaman itu terpisah & tidak bentrok
+     dengan portofolio utama. Isi iframe diambil dari blok <script type="text/html">
+     di bawah -- kalau mau edit harga/layanan, ubah teks di dalam blok itu. -->
+<div id="servicesModal" class="popup-overlay hidden" role="dialog" aria-modal="true" aria-label="Services & Pricing">
+  <button id="closeServicesModal" class="close-x" data-cursor="TUTUP" aria-label="Tutup">&times;</button>
+  <iframe id="servicesFrame" class="services-frame" title="Services & Pricing"></iframe>
+</div>
+
+<script type="text/html" id="servicesPageSource">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jasa Desain — Logo, Sosmed, Packaging & Lainnya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Cal Sans';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 400;
+    src: url(https://cdn.jsdelivr.net/fontsource/fonts/cal-sans@5.3.0/latin-400-normal.woff2) format('woff2'),
+         url(https://cdn.jsdelivr.net/fontsource/fonts/cal-sans@5.3.0/latin-400-normal.woff) format('woff');
+    unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+
+  :root {
+    --black: #0a0a0a;
+    --gray-600: #383838;
+    --blue: #4d7fff;
+    --blue-bright: #82a6ff;
+    --blue-dim: rgba(77, 127, 255, 0.16);
+    --white: #f5f5f5;
+    --white-dim: rgba(245, 245, 245, 0.62);
+    --font-display: 'Cal Sans', sans-serif;
+    --font-body: 'Montserrat', sans-serif;
+    --max-w: 760px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+  a { color: inherit; }
+
+  /* ---------- header ---------- */
+  .site-header { padding: 32px 0 0; }
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--blue);
+    text-decoration: none;
+  }
+
+  /* ---------- hero ---------- */
+  .hero { position: relative; padding: 72px 0 92px; overflow: hidden; }
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--blue-dim) 1.5px, transparent 1.5px);
+    background-size: 26px 26px;
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 85%);
+            mask-image: linear-gradient(to bottom, #000, transparent 85%);
+    pointer-events: none;
+  }
+  .hero .wrap { position: relative; }
+  .hero h1 {
+    font-family: var(--font-display);
+    color: var(--blue);
+    font-size: clamp(2.1rem, 6vw, 3.4rem);
+    line-height: 1.12;
+    margin: 0 0 20px;
+    animation: reveal 0.7s ease both;
+  }
+  .hero p {
+    font-weight: 300;
+    color: var(--white-dim);
+    font-size: clamp(1rem, 2.2vw, 1.15rem);
+    max-width: 46ch;
+    margin: 0;
+    animation: reveal 0.7s ease 0.12s both;
+  }
+
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- services ---------- */
+  .services { padding: 0 0 88px; }
+  .services-intro { margin-bottom: 28px; }
+  .services-intro h2 {
+    font-family: var(--font-body);
+    font-weight: 800;
+    color: var(--white);
+    font-size: clamp(1.3rem, 3vw, 1.6rem);
+    margin: 0 0 8px;
+  }
+  .services-intro p {
+    font-weight: 300;
+    color: var(--white-dim);
+    margin: 0;
+    max-width: 55ch;
+  }
+
+  .service-list-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 0 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--white-dim);
+  }
+
+  .service-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--gray-600); }
+  .service-item { border-bottom: 1px solid var(--gray-600); }
+
+  .service-toggle {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    padding: 22px 0;
+    text-align: left;
+    font: inherit;
+  }
+  .service-toggle::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 1px;
+    background: var(--blue);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .service-toggle:hover::after,
+  .service-toggle:focus-visible::after { transform: scaleX(1); }
+  .service-toggle:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 6px;
+  }
+
+  .service-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .service-name {
+    font-weight: 700;
+    color: var(--blue);
+    font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+    transition: color 0.25s ease;
+  }
+  .service-price {
+    font-weight: 600;
+    color: var(--blue);
+    font-size: 0.95rem;
+    white-space: nowrap;
+    transition: color 0.25s ease;
+  }
+  .service-toggle:hover .service-name,
+  .service-toggle:hover .service-price,
+  .service-toggle:focus-visible .service-name,
+  .service-toggle:focus-visible .service-price { color: var(--blue-bright); }
+
+  .service-meta { display: flex; align-items: center; gap: 8px; }
+  .toggle-label { font-weight: 400; font-size: 0.85rem; color: var(--white-dim); }
+  .toggle-icon {
+    position: relative;
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    color: var(--white-dim);
+    transition: transform 0.3s ease;
+  }
+  .toggle-icon::before,
+  .toggle-icon::after {
+    content: "";
+    position: absolute;
+    background: currentColor;
+  }
+  .toggle-icon::before { width: 100%; height: 1.5px; top: 50%; left: 0; transform: translateY(-50%); }
+  .toggle-icon::after { height: 100%; width: 1.5px; left: 50%; top: 0; transform: translateX(-50%); }
+  .service-item.is-open .toggle-icon { transform: rotate(45deg); }
+
+  .service-detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s ease; }
+  .service-item.is-open .service-detail { grid-template-rows: 1fr; }
+  .service-detail-inner { overflow: hidden; }
+  .service-detail p {
+    margin: 0 0 22px;
+    padding-top: 2px;
+    font-weight: 300;
+    color: var(--white-dim);
+    max-width: 60ch;
+    font-size: 0.95rem;
+  }
+
+  /* ---------- isi detail berupa poin-poin ---------- */
+  .service-points {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 2px 0 0;
+    max-width: 60ch;
+  }
+  .service-points li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 8px;
+    font-weight: 300;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--white-dim);
+  }
+  .service-points li:last-child { margin-bottom: 0; }
+  /* penanda titik biru di depan tiap poin */
+  .service-points li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0.62em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--blue);
+  }
+  /* poin yang mau ditonjolkan: tambahkan class="is-key" pada <li> */
+  .service-points li.is-key { color: var(--white); font-weight: 400; }
+
+  /* ---------- terms (ketentuan dasar) ---------- */
+  .terms { padding: 64px 0 88px; border-top: 1px solid var(--gray-600); }
+  .terms .wrap {
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) minmax(0, 1.7fr);
+    gap: 20px 56px;
+  }
+  .terms-eyebrow {
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    margin: 0 0 18px;
+  }
+  .terms-headline {
+    font-family: var(--font-display);
+    color: var(--blue);
+    font-size: clamp(1.9rem, 4.6vw, 2.7rem);
+    line-height: 1.1;
+    margin: 0;
+  }
+  .terms-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--gray-600); }
+  .terms-item {
+    display: flex;
+    gap: 22px;
+    align-items: baseline;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--gray-600);
+  }
+  .terms-index {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--white-dim);
+    flex-shrink: 0;
+    width: 24px;
+  }
+  .terms-text {
+    font-weight: 300;
+    color: var(--white);
+    font-size: 1rem;
+    margin: 0;
+    max-width: 58ch;
+  }
+
+  @media (max-width: 640px) {
+    .terms .wrap { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- cta ---------- */
+  .cta { padding: 64px 0 72px; border-top: 1px solid var(--gray-600); }
+  .cta h2 {
+    font-family: var(--font-display);
+    color: var(--white);
+    font-size: clamp(1.7rem, 4vw, 2.2rem);
+    margin: 0 0 12px;
+    max-width: 18ch;
+  }
+  .cta p {
+    font-weight: 300;
+    color: var(--white-dim);
+    margin: 0 0 32px;
+    max-width: 48ch;
+  }
+  .wa-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--blue);
+    color: var(--black);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 16px 28px;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: background 0.25s ease, box-shadow 0.25s ease;
+  }
+  .wa-button:hover,
+  .wa-button:focus-visible { background: var(--blue-bright); box-shadow: 0 0 16px rgba(77,127,255,0.22); }
+  .wa-button:focus-visible { outline: 2px solid var(--white); outline-offset: 4px; }
+  .wa-button svg { width: 18px; height: 18px; }
+
+  /* ---------- footer / social ---------- */
+  .site-footer { padding: 12px 0 48px; }
+  .social-row {
+    display: flex;
+    gap: 14px;
+    margin: 0 0 28px;
+    border-top: 1px solid var(--gray-600);
+    padding-top: 28px;
+  }
+  .social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--gray-600);
+    border-radius: 50%;
+    color: var(--white-dim);
+    text-decoration: none;
+    transition: color 0.25s ease, border-color 0.25s ease;
+  }
+  .social-link:hover {
+    color: var(--blue-bright);
+    border-color: var(--blue-bright);
+  }
+  .social-link svg { width: 17px; height: 17px; }
+  .social-link text {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 9px;
+  }
+  .site-footer p {
+    margin: 0;
+    font-weight: 300;
+    color: var(--white-dim);
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 480px) {
+    .wrap { padding: 0 20px; }
+    .hero { padding: 56px 0 72px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .hero h1, .hero p, .service-detail, .toggle-icon, .wa-button, .service-toggle, .service-toggle::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Ganti "Rafiadhibtr." di bawah ini dengan nama/brand kamu sendiri -->
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="#top">Rafiadhibtr.</a>
+    </div>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="wrap">
+      <h1>Bikin Brand Kamu Lebih Gampang Diingat.</h1>
+      <p>Mulai dari logo, konten sosial media, sampai kebutuhan visual lainnya,
+semuanya dikerjakan dengan rapi, sesuai kebutuhan dan menyesuaikan budget kamu.</p>
+    </div>
+  </section>
+
+  <main>
+    <section class="services" aria-labelledby="layanan-heading">
+      <div class="wrap">
+        <div class="services-intro">
+          <h2 id="layanan-heading">Layanan</h2>
+          <p>Pilih layanan yang kamu butuhkan.
+Harga final bisa menyesuaikan brief, tingkat kesulitan, dan kebutuhan project.</p>
+        </div>
+
+        <div class="service-list-header">
+          <span>Layanan</span>
+          <span>Mulai dari</span>
+        </div>
+
+        <ul class="service-list">
+
+          <li class="service-item">
+            <button class="service-toggle" aria-expanded="false" aria-controls="detail-logo">
+              <span class="service-main">
+                <span class="service-name">Logo Design</span>
+                <span class="service-price">Rp120.000</span>
+              </span>
+              <span class="service-meta">
+                <span class="toggle-label">Lihat detail</span>
+                <span class="toggle-icon" aria-hidden="true"></span>
+              </span>
+            </button>
+            <div class="service-detail" id="detail-logo">
+              <div class="service-detail-inner">
+                <!-- Tiap baris poin = satu <li>. Tambah class="is-key" kalau mau poin itu lebih terang -->
+                <ul class="service-points">
+                  <li class="is-key">Sudah termasuk basic brand identity</li>
+                  <li>3 opsi desain logo</li>
+                  <li>Termasuk mockup</li>
+                  <li>File akhir PNG &amp; JPG</li>
+                  <li>Maksimal 5x revisi</li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          <li class="service-item">
+            <button class="service-toggle" aria-expanded="false" aria-controls="detail-sosmed">
+              <span class="service-main">
+                <span class="service-name">Social Media Design</span>
+                <span class="service-price">Rp30.000/desain</span>
+              </span>
+              <span class="service-meta">
+                <span class="toggle-label">Lihat detail</span>
+                <span class="toggle-icon" aria-hidden="true"></span>
+              </span>
+            </button>
+            <div class="service-detail" id="detail-sosmed">
+              <div class="service-detail-inner">
+                <ul class="service-points">
+                  <li class="is-key">9 desain konten untuk feed atau story</li>
+                  <li>File akhir PNG &amp; JPG</li>
+                  <li>Maksimal 5x revisi</li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          <li class="service-item">
+            <button class="service-toggle" aria-expanded="false" aria-controls="detail-packaging">
+              <span class="service-main">
+                <span class="service-name">Packaging Design</span>
+                <span class="service-price">Rp150.000</span>
+              </span>
+              <span class="service-meta">
+                <span class="toggle-label">Lihat detail</span>
+                <span class="toggle-icon" aria-hidden="true"></span>
+              </span>
+            </button>
+            <div class="service-detail" id="detail-packaging">
+              <div class="service-detail-inner">
+                <ul class="service-points">
+                  <li class="is-key">3 opsi desain & Termasuk mockup</li>
+                  <li>Termasuk label dan dieline</li>
+                  <li>Menyesuaikan ukuran dan bahan kemasan</li>
+                  <li>File akhir PDF, PNG &amp; JPG</li>
+                  <li>Maksimal 5x revisi</li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          <li class="service-item">
+            <button class="service-toggle" aria-expanded="false" aria-controls="detail-poster">
+              <span class="service-main">
+                <span class="service-name">Poster / Banner</span>
+                <span class="service-price">Rp80.000</span>
+              </span>
+              <span class="service-meta">
+                <span class="toggle-label">Lihat detail</span>
+                <span class="toggle-icon" aria-hidden="true"></span>
+              </span>
+            </button>
+            <div class="service-detail" id="detail-poster">
+              <div class="service-detail-inner">
+                <ul class="service-points">
+                  <li class="is-key">Tambah opsi desain: +Rp30.000/opsi</li>
+                  <li>Termasuk mockup</li>
+                  <li>File akhir PNG &amp; JPG</li>
+                  <li>Maksimal 5x revisi</li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          <li class="service-item">
+            <button class="service-toggle" aria-expanded="false" aria-controls="detail-tshirt">
+              <span class="service-main">
+                <span class="service-name">T-Shirt Design</span>
+                <span class="service-price">Rp100.000</span>
+              </span>
+              <span class="service-meta">
+                <span class="toggle-label">Lihat detail</span>
+                <span class="toggle-icon" aria-hidden="true"></span>
+              </span>
+            </button>
+            <div class="service-detail" id="detail-tshirt">
+              <div class="service-detail-inner">
+                <ul class="service-points">
+                  <li class="is-key">Termasuk mockup</li>
+                  <li>File siap sablon manual maupun DTF</li>
+                  <li>Termasuk mockup kaos</li>
+                  <li>Maksimal 5x revisi</li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          <li class="service-item">
+            <button class="service-toggle" aria-expanded="false" aria-controls="detail-cover">
+              <span class="service-main">
+                <span class="service-name">Cover Artwork</span>
+                <span class="service-price">Rp120.000</span>
+              </span>
+              <span class="service-meta">
+                <span class="toggle-label">Lihat detail</span>
+                <span class="toggle-icon" aria-hidden="true"></span>
+              </span>
+            </button>
+            <div class="service-detail" id="detail-cover">
+              <div class="service-detail-inner">
+                <ul class="service-points">
+                  <li class="is-key">Desain sampul buku, EP musik, atau konten digital</li>
+                  <li>Termasuk mockup</li>
+                  <li>Ukuran menyesuaikan platform rilis</li>
+                  <li>File akhir PNG &amp; JPG</li>
+                  <li>Maksimal 5x revisi</li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          <li class="service-item">
+            <button class="service-toggle" aria-expanded="false" aria-controls="detail-menu">
+              <span class="service-main">
+                <span class="service-name">Menu Design</span>
+                <span class="service-price">Rp100.000</span>
+              </span>
+              <span class="service-meta">
+                <span class="toggle-label">Lihat detail</span>
+                <span class="toggle-icon" aria-hidden="true"></span>
+              </span>
+            </button>
+            <div class="service-detail" id="detail-menu">
+              <div class="service-detail-inner">
+                <ul class="service-points">
+                  <li class="is-key">Tambah opsi desain: +Rp30.000/opsi</li>
+                  <li>Termasuk mockup</li>
+                  <li>Siap cetak maupun versi digital</li>
+                  <li>File akhir PDF, PNG &amp; JPG</li>
+                  <li>Maksimal 5x revisi</li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          <li class="service-item">
+            <button class="service-toggle" aria-expanded="false" aria-controls="detail-brand">
+              <span class="service-main">
+                <span class="service-name">Editing Photo</span>
+                <span class="service-price">Rp80.000/halaman</span>
+              </span>
+              <span class="service-meta">
+                <span class="toggle-label">Lihat detail</span>
+                <span class="toggle-icon" aria-hidden="true"></span>
+              </span>
+            </button>
+            <div class="service-detail" id="detail-brand">
+              <div class="service-detail-inner">
+                <ul class="service-points">
+                  <li class="is-key">Termasuk coloring, manipulating, dan layouting</li>
+                  <li>Cocok untuk foto wisuda, produk, wedding, maupun event</li>
+                  <li>Ukuran dan format menyesuaikan kebutuhan</li>
+                  <li>File akhir PNG & JPG</li>
+                  <li>Maksimal 5x revisi</li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
+        </ul>
+      </div>
+    </section>
+
+    <section class="terms" aria-labelledby="terms-heading">
+      <div class="wrap">
+        <div>
+          <p class="terms-eyebrow">Ketentuan Dasar</p>
+          <h2 class="terms-headline" id="terms-heading">Biar Semuanya Jelas dari Awal.</h2>
+        </div>
+        <ol class="terms-list">
+          <li class="terms-item">
+            <span class="terms-index">01</span>
+            <p class="terms-text">DP 50% dibayar di awal, setelah lingkup kerja disepakati bareng.</p>
+          </li>
+          <li class="terms-item">
+            <span class="terms-index">02</span>
+            <p class="terms-text">Revisi maksimal 3x untuk tiap layanan yang sudah dikonfirmasi.</p>
+          </li>
+          <li class="terms-item">
+            <span class="terms-index">03</span>
+            <p class="terms-text">Butuh cepat? Ada biaya tambahan mulai Rp100.000 untuk pengerjaan mendesak.</p>
+          </li>
+          <li class="terms-item">
+            <span class="terms-index">04</span>
+            <p class="terms-text">Font premium, stok foto berbayar, dan aset pihak ketiga dihitung di luar biaya jasa desain.</p>
+          </li>
+          <li class="terms-item">
+            <span class="terms-index">05</span>
+            <p class="terms-text">Ada penambahan di luar lingkup awal? Estimasi barunya diinfoin dulu sebelum lanjut dikerjakan.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Ganti nomor WA di href bagian bawah (62xxxxxxxxxxx) dengan nomor kamu -->
+    <section class="cta">
+      <div class="wrap">
+        <h2>Punya project yang mau digarap?</h2>
+        <p>Kirim brief atau ceritakan kebutuhan kamu, nanti kita bahas bareng.</p>
+        <a
+          class="wa-button"
+          href="https://wa.me/6281234567890?text=Halo%2C%20saya%20tertarik%20dengan%20jasa%20desain%20kamu."
+          target="_blank"
+          rel="noopener"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Hubungi Saya
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Ganti keempat href di bawah ini dengan link profil sosial media kamu -->
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="social-row">
+        <a class="social-link" href="https://instagram.com/rafiadhibtr/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5"></rect>
+            <circle cx="12" cy="12" r="4.2"></circle>
+            <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none"></circle>
+          </svg>
+        </a>
+        <a class="social-link" href="https://behance.net/raffiadhiba" target="_blank" rel="noopener" aria-label="Behance">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
+            <text x="12" y="15.5" text-anchor="middle" fill="currentColor">Be</text>
+          </svg>
+        </a>
+        <a class="social-link" href="https://tiktok.com/@rafiadhidong" target="_blank" rel="noopener" aria-label="TikTok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 4v9.6a3.6 3.6 0 1 1-3.2-3.58"></path>
+            <path d="M14 4c.4 2.2 2 3.8 4.2 4.1"></path>
+          </svg>
+        </a>
+        <a class="social-link" href="https://youtube.com/@rafiadhibtr" target="_blank" rel="noopener" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="6" width="18" height="12" rx="4"></rect>
+            <path d="M10.5 9.8v4.4l4-2.2z" fill="currentColor" stroke="none"></path>
+          </svg>
+        </a>
+      </div>
+      <p>Harga dapat berubah sewaktu-waktu tanpa pemberitahuan.</p>
+    </div>
+  </footer>
+
+  <\script>
+    // Accordion detail toggle
+    document.querySelectorAll('.service-toggle').forEach(function (button) {
+      var item = button.closest('.service-item');
+      var panel = item.querySelector('.service-detail');
+      var label = button.querySelector('.toggle-label');
+
+      panel.setAttribute('aria-hidden', 'true');
+
+      button.addEventListener('click', function () {
+        var isOpen = item.classList.toggle('is-open');
+        button.setAttribute('aria-expanded', String(isOpen));
+        panel.setAttribute('aria-hidden', String(!isOpen));
+        label.textContent = isOpen ? 'Sembunyikan detail' : 'Lihat detail';
+      });
+    });
+  <\/script>
+
+</body>
+</html>
+</script>
+
+<section id="closing1" class="closing-slide">
+  <div id="closing1Bg" class="closing1-reveal-bg">
+    <!-- Gambar background (kayak referensi kamu - siluet biru jatuh di
+         langit mendung). Ganti linknya lewat CLOSING1_REVEAL_IMG di script.js -->
+    <img class="closing1-reveal-img" id="closing1RevealImg" src="" alt="">
+
+    <!-- 3 baris teks, font Cal Sans. Arahkan kursor ke salah satu baris
+         -> kotak biru bertekstur noise muncul di belakang, teksnya sendiri
+         TETAP PUTIH (tidak ikut berubah warna). -->
+    <div class="closing1-lines">
+      <span class="closing1-line" data-line="howiwork" role="button" tabindex="0">
+        <span class="closing1-line-box"></span>
+        <span class="closing1-line-text">How I Work</span>
+      </span>
+      <span class="closing1-line" data-line="experience" role="button" tabindex="0">
+        <span class="closing1-line-box"></span>
+        <span class="closing1-line-text">Experience / Clients</span>
+      </span>
+      <span class="closing1-line" data-line="services" role="button" tabindex="0">
+        <span class="closing1-line-box"></span>
+        <span class="closing1-line-text">Services &amp; Pricing</span>
+      </span>
+    </div>
+  </div>
+  <button id="closing1RevealBtn" class="closing1-reveal-btn" type="button" aria-label="buka">
+    <img src="" alt="interested">
+  </button>
+</section>
+
+<section id="closing2" class="closing-slide">
+  <h2 class="kinetic-text">Mari berkarya bersama.</h2>
+  <a id="contactLink" href="#" class="contact-btn" data-magnetic data-cursor="KIRIM">Hubungi Saya</a>
+  <p class="footer-note">© <span id="yearNow"></span> — Dibuat dengan niat baik.</p>
+</section>
+
+<!-- ============================================================
+     GERBANG ORIENTASI — cuma tampil di HP yang lagi posisi portrait.
+     Syarat munculnya diatur di style.css (cari "PAKSA MODE HORIZONTAL").
+     Begitu HP diputar ke horizontal, blok ini otomatis hilang.
+     ============================================================ -->
+<div id="rotateGate" role="dialog" aria-modal="true" aria-labelledby="rotateGateTitle" aria-describedby="rotateGateDesc">
+  <svg class="rg-phone" viewBox="0 0 100 100" width="96" height="96" aria-hidden="true">
+    <rect x="31" y="10" width="38" height="80" rx="8" fill="none" stroke="currentColor" stroke-width="3"/>
+    <line x1="44" y1="19" x2="56" y2="19" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    <rect x="37" y="28" width="26" height="52" rx="2" fill="#0042FF"/>
+  </svg>
+  <h2 id="rotateGateTitle">Putar HP kamu ke posisi horizontal</h2>
+  <p id="rotateGateDesc">Portofolio ini dirancang untuk layar lebar. Begitu HP diputar, halaman langsung terbuka.</p>
+  <p class="rg-hint">Layar tidak berputar? Nyalakan auto-rotate di pengaturan HP.</p>
+</div>

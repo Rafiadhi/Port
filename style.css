@@ -1,0 +1,1417 @@
+/* ===================================================================== 
+  PORTOFOLIO — CSS (UPGRADED)
+  Font: Space Grotesk (display) + Inter (body) + Space Mono (label/cursor) 
+===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cal+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root{
+  --white:#F4F2ED;
+  --black:#0A0A0C;
+  --gray:#8f8f8f;
+  --accent:#FFB100;
+  --ease: cubic-bezier(.22,1,.36,1);
+  --display: 'Space Grotesk', sans-serif;
+  --display-alt: 'Cal Sans', 'Space Grotesk', sans-serif;
+  --body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'Space Mono', monospace;
+  --start-btn-w: 160px; /* GANTI DI SINI: lebar tombol START NOW (PNG) */
+}
+
+html,body{
+  width:100%;
+  overflow-x:hidden;
+  background:var(--black);
+  color:var(--white);
+  font-family: var(--body);
+  scroll-behavior:smooth;
+}
+
+/* dipasang/dilepas lewat JS pas popup brandModal (gambar panjang) buka/tutup
+   -- kunci total biar scroll di dalam popup nggak pernah "nembus" ke
+   halaman utama di belakangnya */
+body.modal-scroll-lock{ overflow:hidden; }
+
+img{ -webkit-user-drag:none; user-select:none; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001s !important; transition-duration:.001s !important; }
+}
+
+/* hide native cursor on precise pointers only */
+@media (hover:hover) and (pointer:fine){
+  body{ cursor:none; }
+  a, button{ cursor:none; }
+}
+
+/* ============ CUSTOM CURSOR ============ */
+#cursorDot, #cursorRing{
+  position:fixed; top:0; left:0;
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  will-change:transform;
+}
+#cursorDot{
+  width:6px; height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  transition:opacity .2s;
+}
+#cursorRing{
+  width:40px; height:40px;
+  border-radius:50%;
+  border:1px solid rgba(244,242,237,.5);
+  display:flex; align-items:center; justify-content:center;
+  transition:width .3s var(--ease), height .3s var(--ease), border-color .3s var(--ease), background .3s var(--ease);
+}
+#cursorRing.is-hover{
+  width:88px; height:88px;
+  border-color:transparent;
+  background:var(--white);
+}
+#cursorLabel{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.06em;
+  color:var(--black);
+  opacity:0;
+  transition:opacity .25s var(--ease);
+  text-align:center;
+  white-space:nowrap;
+}
+#cursorRing.is-hover #cursorLabel{ opacity:1; }
+@media (hover:none), (pointer:coarse){
+  #cursorDot,#cursorRing{ display:none; }
+}
+
+/* ============ PRELOADER ============
+   Blank hitam polos (tanpa gambar sama sekali, biar ringan pas loading awal).
+   Garis loading yang bergerak di tengah: warnanya biru #0042FF, atur lewat
+   --preloader-fill-color di bawah. */
+#preloader{
+  --preloader-fill-color: #0042FF; /* GANTI DI SINI kalau mau warna garis loading beda */
+  position:fixed; inset:0; z-index:10000;
+  overflow:hidden;
+  background:var(--black);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:18px;
+  transition:transform .8s var(--ease), opacity .6s var(--ease) .2s;
+}
+#preloader.is-done{
+  transform:translateY(-100%);
+  opacity:1;
+  pointer-events:none;
+}
+.preloader-count{
+  font-family:var(--display); font-weight:600;
+  font-size:clamp(48px,8vw,96px);
+  letter-spacing:-.02em;
+}
+.preloader-bar{
+  width:min(60vw,320px); height:1px;
+  background:rgba(244,242,237,.25);
+}
+#preloaderFill{
+  height:100%; width:0%;
+  background:var(--preloader-fill-color);
+  transition:width .25s linear;
+}
+.preloader-tag{
+  font-family:var(--mono); font-size:11px; letter-spacing:.2em; color:rgba(244,242,237,.75);
+}
+
+/* ============ SCROLL PROGRESS DOTS ============ */
+#scrollDots{
+  position:fixed; right:22px; top:50%; transform:translateY(-50%);
+  z-index:40;
+  display:flex; flex-direction:column; gap:16px;
+  opacity:0; pointer-events:none;
+  transition:opacity .5s var(--ease);
+}
+#scrollDots.is-visible{ opacity:1; pointer-events:auto; }
+#scrollDots button{
+  width:8px; height:8px; border-radius:50%;
+  background:rgba(244,242,237,.3);
+  border:none;
+  transition:background .3s var(--ease), transform .3s var(--ease);
+}
+#scrollDots button.is-active{
+  background:var(--accent);
+  transform:scale(1.4);
+}
+
+/* ============ KUNCI SCROLL SEBELUM START NOW ============ */
+html.pre-start, html.pre-start body{
+  overflow:hidden;
+  height:100vh;
+}
+html.started #page1{ display:none; }
+
+/* ============ PAGE 1 ============ */
+#page1{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+}
+
+#page1BgImg{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  z-index:1;
+}
+
+/* ---- OVERLAY BULATAN NOISE MENGIKUTI KURSOR (Halaman 1) ----
+   Gambar ke-2 ini selalu ada di DOM tapi cuma kelihatan di dalam area
+   bulat yang tepinya kasar/noise (lihat <mask id="cursorNoiseMask"> di
+   index.html), dan bulatan itu mengikuti posisi kursor secara real-time
+   lewat JS (tanpa efek 3D/tilt, beda dengan Profil 1).
+   Ukuran bulatan: ubah r="150" pada <circle id="cursorMaskCircle"> di HTML,
+   atau di JS lewat CURSOR_SPOT_RADIUS. */
+#page1OverlayImg{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  z-index:2;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .6s var(--ease);
+  mask-image:url(#cursorNoiseMask);
+  -webkit-mask-image:url(#cursorNoiseMask);
+  mask-repeat:no-repeat;
+  -webkit-mask-repeat:no-repeat;
+}
+#page1.overlay-ready #page1OverlayImg{ opacity:1; }
+
+/* ---- KEGELAPAN HALAMAN 1 ----
+   Tinggal ubah angka di --page1-darkness (0 = terang penuh, 1 = hitam total).
+   Kalau mau gradasi (gelap di bawah, terang di atas) dari pada rata,
+   ganti "background" di bawah dengan versi gradient yang sudah disediakan (tinggal uncomment). */
+#page1Darken{
+  position:absolute; inset:0;
+  z-index:3;
+  pointer-events:none;
+  --page1-darkness: 0; /* GANTI DI SINI: 0 (terang) sampai 1 (gelap total) */
+  background: rgba(0,0,0,var(--page1-darkness));
+  /* background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,var(--page1-darkness)) 100%); */
+}
+
+
+#openPortfolioBtn{
+  position:absolute;
+  left:30%; top:60%;
+  transform:translate(-50%,-50%);
+  width:var(--start-btn-w, 160px);
+  padding:0;
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  transition:transform .35s var(--ease);
+  z-index:10;
+}
+#openPortfolioBtn:hover{ transform:translate(-50%,-50%) scale(1.05); }
+.start-btn-img{
+  display:block;
+  width:100%;
+  height:auto;
+  pointer-events:none;
+}
+.start-btn-default{ position:relative; z-index:1; }
+.start-btn-hover{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  clip-path:inset(0 100% 0 0);
+  transition:clip-path .55s var(--ease);
+}
+#openPortfolioBtn:hover .start-btn-hover{ clip-path:inset(0 0 0 0); }
+
+#hiddenCircleBtn{
+  position:absolute;
+  right:6%;
+  bottom:8%;
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  border:none;
+  overflow:hidden;
+  background:transparent;
+  opacity:0.06;
+  cursor:pointer;
+  transition:opacity .4s var(--ease);
+  z-index:10;
+}
+#hiddenCircleBtn:hover{ opacity:0.5; }
+#hiddenCircleBtn img{ width:100%; height:100%; object-fit:cover; }
+
+/* ============ TRANSISI PIXEL/MOSAIC ============
+   Dipakai bareng buat: (1) klik START NOW -> profil 1, dan
+   (2) klik kolom Graphic Designer/Content Creator -> subpage.
+   Grid kotak-kotak kecil menutup layar dengan gelombang diagonal (delay
+   per-kotak beda-beda, diatur lewat JS), lalu terbuka lagi dengan arah
+   gelombang yang sama -> kesannya kotak-kotak itu "mengalir" menutup lalu
+   terus mengalir membuka halaman baru, bukan potongan kasar. */
+#pixelTransition{
+  position:fixed; inset:0;
+  z-index:999;
+  pointer-events:none;
+  display:grid;
+  grid-template-columns:repeat(var(--pt-cols,14), 1fr);
+  grid-template-rows:repeat(var(--pt-rows,8), 1fr);
+}
+.pixel-tile{
+  background:#0a0a0a;
+  transform:scale(0);
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+}
+#pixelTransition.covering .pixel-tile{ transform:scale(1); }
+
+/* ---- TEKS TRANSISI KLIK START NOW ----
+   Animasi penutup layarnya tetap pakai kotak-kotak pixel yang sama
+   (#pixelTransition, warna solid, tanpa gambar), teks ini cuma nempel
+   di atasnya biar kebaca pas layar ketutup. */
+#startTransitionText{
+  position:fixed; inset:0;
+  z-index:1000;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .3s var(--ease);
+}
+#startTransitionText.is-visible{ opacity:1; }
+.start-transition-text{
+  font-family:var(--display-alt); /* Cal Sans */
+  font-size:clamp(12px, 1.4vw, 16px); /* diperkecil */
+  color:var(--white);
+  letter-spacing:.03em;
+}
+
+/* ============ PAGE 2 — PROFIL SLIDES ============ */
+#page2{ width:100vw; }
+
+.profile-slide{
+  position:relative;
+  width:100vw; height:100vh;
+  aspect-ratio:16/9;
+  overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+} 
+.profile-bg{
+  position:absolute; inset:0;
+  background-size:cover; background-position:center;
+  background-color:#111;
+}
+.profile-overlay{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position: var(--overlay-pos, center);
+  opacity:0;
+  transform:translateY(40px);
+  transition: opacity 1s var(--ease), transform 1s var(--ease);
+  will-change:transform;
+}
+.profile-slide.in-view .profile-overlay{ opacity:1; transform:translateY(0); }
+
+/* ---- OVERLAY KE-2: muncul dalam bulatan "cairan" mengikuti kursor ----
+   Jauh dari kursor / kursor belum masuk -> tetap overlay 1 (opacity 0 di sini).
+   Kursor masuk ke gambar -> overlay ini fade-in, tapi cuma kelihatan di area
+   bulat mengikuti posisi kursor. Tepinya sekarang BURAM/SOFT (bukan garis
+   tegas lagi) lewat mask-image radial-gradient, biar kesannya lebih halus
+   kayak sorotan cahaya, bukan potongan bulat kasar.
+   Ukuran bulatannya: --spot-r. Lebar area buram di tepi: --spot-fade. */
+.profile-overlay-alt{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position: var(--overlay-pos, center);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .45s var(--ease);
+  will-change:transform;
+  --spot-r:90px;
+  --spot-fade:60px;
+  mask-image: radial-gradient(circle var(--spot-r) at var(--mx,50%) var(--my,50%), #000 calc(100% - var(--spot-fade)), transparent 100%);
+  -webkit-mask-image: radial-gradient(circle var(--spot-r) at var(--mx,50%) var(--my,50%), #000 calc(100% - var(--spot-fade)), transparent 100%);
+  filter: drop-shadow(0 0 18px rgba(0,0,0,.0));
+}
+.profile-slide:hover .profile-overlay-alt{ opacity:1; }
+
+/* =====================================================================
+   PROFIL 1 — TUMPUKAN 3 GAMBAR (background, orang, teks) + tombol PNG
+   "tap to know me". Semua gambar (1, 2, 3) FULL 1 LAYAR & object-fit:cover
+   supaya ukuran/rasionya sama persis satu sama lain.
+   - Ganti gambar 1 (bg) & 2 (orang): PROFILE_SLIDES[0].bg / .overlay di script.js
+   - Ganti gambar 3 (teks, PNG): PROFILE_SLIDES[0].overlay2 di script.js
+   - Ganti PNG tombol "tap to know me": PROFILE1_TAP_BTN_IMG di script.js
+     (ukuran diatur lewat --tap-btn-w di bawah — GANTI DI SINI)
+   - Ganti GIF transisi & durasinya: PROFILE1_TRANSITION_GIF /
+     PROFILE1_GIF_DURATION di script.js
+   - Kekuatan parallax: lihat komentar di script.js bagian "TUMPUKAN PROFIL 1"
+===================================================================== */
+.profile-stack{
+  position:absolute; inset:0;
+  z-index:2;
+  display:flex; align-items:center; justify-content:center;
+}
+.profile-stack-img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  /* GANTI DI SINI kalau bagian gambar yang kepotong/kelihatan "ga pas" —
+     nilai default: center. Bisa diisi "center top", "50% 20%", dsb. */
+  object-position: var(--stack-img-pos, center);
+  will-change:transform;
+  opacity:0;
+  transform:translateY(40px);
+  transition:opacity 1s var(--ease), transform 1s var(--ease);
+}
+.profile-slide.in-view .profile-stack-img-1,
+.profile-slide.in-view .profile-stack-img-2{
+  opacity:1; transform:translateY(0);
+}
+.profile-stack-img-1{ z-index:1; --stack-img-pos: center; }
+.profile-stack-img-2{ z-index:2; --stack-img-pos: center; }
+
+/* Gambar 3 (teks) — TIDAK ikut fade-in scroll seperti 1 & 2, cuma muncul
+   lewat class .is-revealed (dipicu JS setelah gif transisi selesai). */
+.profile-stack-img-3{
+  z-index:3;
+  --stack-img-pos: center;
+  transition:opacity .6s var(--ease), transform 1s var(--ease);
+}
+#slide0.is-revealed .profile-stack-img-3{
+  opacity:1; transform:translateY(0);
+}
+
+/* ---- TOMBOL "tap to know me" (PNG) ----
+   --tap-btn-w = lebar tombol, tinggi menyesuaikan proporsi PNG-nya sendiri
+   (jangan diubah rasionya di PNG, cukup atur lebar di sini). */
+.profile-tap-btn{
+  --tap-btn-w: 170px; /* GANTI DI SINI: lebar tombol "tap to know me" */
+  position:relative; z-index:4;
+  width:var(--tap-btn-w);
+  border:none; background:transparent; padding:0;
+  cursor:pointer;
+  opacity:0;
+  transition:opacity 1s var(--ease) .25s, transform .3s var(--ease);
+}
+.profile-slide.in-view .profile-tap-btn{ opacity:1; }
+.profile-tap-btn:hover{ transform:scale(1.05); }
+.profile-tap-btn img{ display:block; width:100%; height:auto; }
+
+/* Tombol hilang begitu diklik (baik pas gif main maupun setelah gambar 3 muncul) */
+#slide0.is-transitioning .profile-tap-btn,
+#slide0.is-revealed .profile-tap-btn{
+  opacity:0;
+  pointer-events:none;
+}
+
+/* ---- GIF TRANSISI (main sebentar sebelum gambar 3 muncul) ---- */
+.profile-gif-transition{
+  position:absolute; inset:0;
+  z-index:5;
+  width:100%; height:100%;
+  object-fit:cover;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s linear;
+}
+#slide0.is-transitioning .profile-gif-transition{ opacity:1; }
+
+/* ---- TOMBOL CONTACT ME + POPUP 3 ICON BULAT ---- */
+.profile-contact{
+  position:absolute;
+  left:50%; bottom:0;
+  transform:translateX(-50%);
+  padding-bottom:28px;
+  z-index:5;
+  display:flex; flex-direction:column; align-items:center; gap:18px;
+}
+.contact-toggle-btn{
+  border:none;
+  background:transparent;
+  padding:0;
+  cursor:pointer;
+  transition:transform .3s var(--ease);
+}
+.contact-toggle-btn:hover{ transform:scale(1.06); }
+.contact-toggle-btn img{
+  display:block;
+  height:56px;
+  width:auto;
+  object-fit:contain;
+}
+.contact-popup{
+  display:flex; gap:14px;
+}
+.contact-icon-btn{
+  width:52px; height:52px; border-radius:50%;
+  background:#fff;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  opacity:0; transform:scale(0) translateY(10px);
+  pointer-events:none;
+  transition:transform .35s var(--ease), opacity .3s var(--ease);
+}
+.profile-contact.open .contact-icon-btn{
+  opacity:1; transform:scale(1) translateY(0);
+  pointer-events:auto;
+}
+.profile-contact.open .contact-icon-btn:nth-child(1){ transition-delay:0s; }
+.profile-contact.open .contact-icon-btn:nth-child(2){ transition-delay:.06s; }
+.profile-contact.open .contact-icon-btn:nth-child(3){ transition-delay:.12s; }
+.contact-icon-btn img{ width:58%; height:58%; object-fit:contain; }
+
+/* ============ PAGE 4 — SPLIT KIRI/KANAN ============ */
+#page4{
+  display:flex; align-items:stretch; justify-content:stretch;
+  gap:1.5vw; padding:1.5vw;
+  background:#000000;
+}
+#splitDarken{
+ display: none !important;
+}
+#splitDarken.active ~ .split-box:not(.popped) {
+  filter: brightness(0.4) blur(6px);
+}
+
+.split-box{
+  position:relative; flex:1; height:100%;
+  border-radius:28px; overflow:hidden;
+  background:#000; /* GANTI DI SINI kalau mau warna dasar kotak beda dari hitam */
+  z-index:1;
+  transition: transform .6s var(--ease), filter .6s var(--ease), opacity .6s var(--ease);
+}
+.split-box.popped{ transform:scale(1.03); z-index:3; }
+
+.split-box-inner{
+  position:relative; width:100%; height:100%;
+  transition:transform .25s var(--ease-out);
+  transform-style:preserve-3d;
+}
+
+/* Gambar 1 (default) SENGAJA disembunyikan total — kondisi normal kotak
+   ini cuma hitam polos + judul putih. Gambar cuma muncul pas di-hover
+   (lihat .split-box-bg-hover di bawah). */
+.split-box-bg{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover;
+  background:#1a1a1a;
+}
+
+/* Gambar ke-2 (versi hover) ditumpuk pas di atas gambar 1, defaultnya tak
+   terlihat (opacity 0). Begitu box di-hover ('popped' aktif) dia fade-in
+   -> lebih pasti kelihatan gantinya, dan transisinya jadi crossfade halus,
+   bukan loncat instan. Efek kotak-kotak pixel (canvas di bawah) main
+   BARENGAN transisi ini, jadi kelihatan seperti "efek pixel dulu, baru
+   berubah jadi gambar". */
+.split-box-bg-hover{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover;
+  background:#1a1a1a;
+  opacity:0;
+  transition:opacity .6s var(--ease), transform .6s var(--ease);
+}
+.split-box.popped .split-box-bg-hover{ opacity:1; transform:scale(1.05); }
+
+/* ---- CANVAS EFEK PIXEL (ala reactbits PixelCard) ----
+   Digambar & dianimasikan oleh JS (lihat script.js, cari komentar
+   "PIXEL CARD"). GANTI DI SINI kalau mau warna/kerapatan titik pixel-nya
+   beda -> lihat SPLIT_BOX_PIXEL_COLORS & SPLIT_BOX_PIXEL_GAP di script.js. */
+.split-box-pixel{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  z-index:2;
+  pointer-events:none;
+}
+
+/* gradasi hitam bawah -> atas, biar teks label tetap kebaca di atas foto */
+.split-box-inner::after{
+  content:'';
+  position:absolute; left:0; right:0; bottom:0;
+  height:45%;
+  background:linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.35) 55%, rgba(0,0,0,0) 100%);
+  pointer-events:none;
+  z-index:3;
+}
+
+.split-box-label{
+  position:absolute; left:8%; bottom:8%;
+  z-index:4;
+  display:flex; flex-direction:column; gap:6px;
+  /* SEKARANG SELALU KELIHATAN (default kotak cuma hitam+teks, bukan cuma
+     muncul pas hover seperti sebelumnya) */
+  opacity:1; transform:translateY(0);
+}
+.split-title{ font-family:var(--display); font-size:clamp(20px,2.6vw,34px); font-weight:700; letter-spacing:.5px; color:var(--white); }
+.split-sub{ font-family:var(--mono); font-size:13px; color:var(--white); opacity:.75; }
+
+/* Transisi klik box sekarang pakai #pixelTransition (lihat JS) supaya
+   konsisten dengan transisi START NOW -> profil 1. */
+
+/* ============ SUBPAGES UMUM ============ */
+.subpage{
+  position:fixed; inset:0;
+  background:#0a0a0a;
+  z-index:50;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  opacity:0;
+  transform:scale(1.06);
+  transition: opacity .8s var(--ease), transform .9s var(--ease);
+  pointer-events:none;
+}
+.subpage.visible{ opacity:1; transform:scale(1); pointer-events:auto; }
+.subpage.hidden{ display:none; }
+
+.back-btn{
+  position:absolute; left:24px; bottom:24px;
+  width:48px; height:48px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,0.08);
+  border:none; border-radius:50%;
+  opacity:0;
+  transition:background .3s var(--ease), transform .3s var(--ease);
+  animation: fadeIn .5s var(--ease) .3s forwards;
+}
+.back-btn:hover{ background:rgba(255,255,255,0.16); transform:scale(1.06); }
+.back-btn img{ width:20px; height:20px; filter:brightness(0) invert(1); }
+@keyframes fadeIn{ to{ opacity:1; } }
+
+.subpage-title{
+  font-family:var(--display-alt); font-weight:700;
+  text-transform:uppercase;
+  font-size:clamp(28px,4.4vw,56px);
+  margin-bottom:16px; letter-spacing:.5px;
+  position:relative; z-index:2;
+}
+
+/* ============ LEFT SUBPAGE — BACKGROUND REVEAL (gambar ke-3) ============ */
+/* 2 layer ditumpuk, saling gantian dipakai sebagai "layer yang baru masuk"
+   supaya transisi ganti background selalu crossfade halus (bukan loncat),
+   sama seperti teknik split-box-bg/split-box-bg-hover di #page4. */
+.archive-bg-layer{
+  position:absolute; inset:0;
+  background-size:cover; background-position:center;
+  opacity:0;
+  transform:scale(1.06);
+  transition:opacity .7s var(--ease), transform 1s var(--ease);
+  will-change:opacity, transform;
+  z-index:0;
+  filter:brightness(.5) saturate(1.05);
+  pointer-events:none;
+}
+.archive-bg-layer.is-visible{ opacity:1; transform:scale(1); }
+
+.archive-darken{
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(10,10,12,.88) 0%, rgba(10,10,12,.4) 38%, rgba(10,10,12,.92) 100%);
+  z-index:1;
+  pointer-events:none;
+}
+
+#leftSubpage .back-btn{ z-index:2; }
+
+#leftSubpage{
+  /* abu-abu gelap default kalau tidak ada teks kategori yang di-hover
+     (archive-bg-layer di atasnya cuma opacity:1 pas ada yang di-hover) */
+  background-color:#232323;
+}
+#leftSubpage .subpage-title{
+  position:absolute; z-index:3;
+  top:5vh; left:6vw; margin:0;
+}
+
+.archive-bottom-fade{
+  position:absolute; left:0; right:0; bottom:0;
+  height:30vh;
+  background:linear-gradient(100deg, rgba(10,10,12,0) 0%, rgba(8,8,10,.92) 70%, #060608 100%);
+  z-index:1;
+  pointer-events:none;
+}
+
+/* Kotak yang bisa di-scroll sendiri -- titik AWAL-nya (top) TETAP di sini
+   walau daftar kategorinya di-scroll ke bawah, karena yang scroll cuma isi
+   di dalam kotak ini, bukan seluruh halaman.
+   GANTI DI SINI kalau mau titik mulai daftarnya lebih tinggi/rendah. */
+.archive-cat-wrap{
+  position:absolute;
+  left:6vw; right:6vw;
+  top:34vh; bottom:0;
+  z-index:2;
+  overflow-y:auto; overflow-x:hidden;
+  scrollbar-width:none;
+}
+.archive-cat-wrap::-webkit-scrollbar{ display:none; }
+
+.archive-cat-list{
+  display:flex; flex-direction:column;
+  align-items:flex-start;
+  gap:2px;
+  padding-bottom:12vh;
+}
+
+/* Tiap baris teks kategori -- persis pola "How I Work" di closing1:
+   teks SELALU PUTIH, yang berubah cuma kotak birunya (di belakang teks,
+   bertekstur noise) pas di-hover. */
+.archive-cat-line{
+  position:relative;
+  display:inline-block;
+  overflow:hidden;
+  cursor:pointer;
+  flex:0 0 auto;
+}
+.archive-cat-text{
+  position:relative;
+  z-index:2;
+  display:block;
+  font-family:var(--display-alt); /* Cal Sans */
+  font-weight:800;
+  font-size:clamp(98px, 6.6vw, 108px); /* GANTI DI SINI kalau mau lebih besar/kecil */
+  line-height:0.93;
+  letter-spacing:-.01em;
+  color:var(--white);
+  text-transform:uppercase;
+}
+.archive-cat-box{
+  position:absolute; inset:0;
+  z-index:1;
+  background-color:#0043FF; /* GANTI DI SINI kalau mau warna kotak beda */
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-blend-mode:overlay;
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .45s cubic-bezier(.65,0,.35,1);
+}
+.archive-cat-line:hover .archive-cat-box,
+.archive-cat-line:focus-visible .archive-cat-box{
+  transform:scaleX(1);
+}
+@media (max-width:640px){
+  .archive-cat-wrap{ left:5vw; right:5vw; }
+}
+
+/* ============ RIGHT SUBPAGE — CONTENT ARCHIVE (list 20 brand) ============ */
+#rightSubpage{
+  align-items:stretch;
+  padding:64px 8vw 40px;
+}
+#rightSubpage .subpage-title{ text-align:center; }
+
+.content-list{
+  width:100%; max-width:920px;
+  margin:0 auto;
+  overflow-y:auto;
+  flex:1;
+  display:flex; flex-direction:column;
+  gap:10px;
+  padding-right:4px;
+  position:relative; z-index:2;
+}
+.content-list::-webkit-scrollbar{ width:5px; }
+.content-list::-webkit-scrollbar-thumb{ background:rgba(244,242,237,.25); border-radius:4px; }
+
+/* Tiap baris: persegi panjang penuh dari kiri ke kanan.
+   3 lapis gambar ditumpuk: gambar 1 (default) selalu solid di bawah,
+   gif + gambar 2 (overlay PNG) fade-in bareng di atasnya pas di-hover
+   -> transisinya smooth (crossfade), bukan loncat. */
+.content-row{
+  position:relative;
+  width:100%;
+  height:clamp(64px, 8vw, 92px);
+  border:none; border-radius:0;
+  background:#000;
+  overflow:hidden;
+  cursor:pointer;
+  display:flex; align-items:center;
+  padding:0 clamp(18px, 2.4vw, 32px);
+  flex:0 0 auto;
+}
+.content-row-main,
+.content-row-gif,
+.content-row-overlay{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  pointer-events:none;
+}
+.content-row-main{ z-index:1; opacity:1; transition:opacity .5s var(--ease); }
+.content-row-gif{ z-index:2; opacity:0; transition:opacity .5s var(--ease); }
+.content-row-overlay{ z-index:3; opacity:0; transition:opacity .5s var(--ease); }
+.content-row.is-hover .content-row-main{ opacity:0; }
+.content-row.is-hover .content-row-gif{ opacity:1; }
+.content-row.is-hover .content-row-overlay{ opacity:1; }
+
+.content-row-name{
+  position:relative; z-index:4;
+  font-family:var(--display); font-weight:600;
+  font-size:clamp(14px, 1.6vw, 18px);
+  letter-spacing:.02em;
+  color:var(--white);
+  text-shadow:0 2px 10px rgba(0,0,0,.65);
+}
+
+/* ============ POPUP UMUM ============ */
+.popup-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.6s var(--ease);
+}
+.popup-overlay.visible { opacity: 1; pointer-events: auto; }
+
+.close-x{
+  position: absolute; top: 24px; right: 32px;
+  background: none; border: none; color: #fff;
+  font-size: 32px; z-index: 110;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.circle-popup-inner {
+  width: 100vw; height: 100vh;
+  transform: scale(0.9) translateY(20px);
+  opacity: 0;
+  transition: transform 0.7s var(--ease), opacity 0.7s var(--ease);
+}
+.popup-overlay.visible .circle-popup-inner { transform: scale(1) translateY(0); opacity: 1; }
+.circle-popup-inner img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ============ BRAND MODAL ============ */
+/* Sebelumnya tiap gambar dipaksa pas 1 layar penuh (background-size:cover,
+   height:100vh) -- sekarang gambar ditampilkan UTUH di lebar penuh modal
+   (bisa lebih tinggi dari 1 layar, misal gambar 1600x2000px), dan
+   track-nya yang di-scroll buat lihat seluruh gambarnya. */
+.brand-modal-track{
+  width:100%; height:100%;
+  overflow-y:auto;
+  /* GANTI DI SINI kalau masih ada kasus scroll nembus ke halaman utama --
+     ini kunci utamanya: begitu scroll di dalam sini mentok atas/bawah,
+     browser TIDAK lanjut nge-scroll elemen di belakangnya (halaman utama) */
+  overscroll-behavior:contain;
+}
+.brand-modal-page{
+  width:100%;
+  display:flex; justify-content:center;
+  position:relative;
+}
+.brand-modal-img{
+  display:block;
+  width:100%;
+  height:auto;      /* tinggi ikut rasio asli gambar -> boleh lebih tinggi dari layar, otomatis discroll */
+}
+.brand-modal-page a.brand-link{ position:absolute; inset:0; display:block; }
+
+/* ============ KINETIC TEXT (closing) ============ */
+.kinetic-text{ overflow:hidden; }
+.kinetic-line{
+  display:block;
+  transform:translateY(110%);
+  transition:transform .9s var(--ease);
+}
+.kinetic-text.in-view .kinetic-line{ transform:translateY(0); }
+
+/* ============ CLOSING ============ */
+.closing-slide{
+  position:relative;
+  width:100vw; height:100vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; gap:20px;
+  background:#050505; padding:0 6vw;
+  overflow:hidden;
+}
+.closing-slide h2{ position:relative; z-index:2; font-family:var(--display); font-weight:600; font-size:clamp(28px,5vw,64px); letter-spacing:-1px; }
+.closing-slide p{ position:relative; z-index:2; color:var(--gray); max-width:520px; }
+
+/* ---- CLOSING 1: setengah lingkaran (PNG buatanmu sendiri) mepet di atas
+   halaman -> klik -> background hitam "terbuka" jadi putih polos (radius
+   melebar dari titik itu), sekaligus gambar tombolnya ikut hilang ---- */
+.closing1-reveal-bg{
+  position:absolute; inset:0;
+  background:#000000;
+  clip-path: circle(0% at var(--rx,50%) var(--ry,0%));
+  transition: clip-path 1.1s cubic-bezier(.65,0,.35,1);
+  z-index:0;
+  overflow:hidden;
+}
+.closing1-reveal-bg.revealed{
+  clip-path: circle(150% at var(--rx,50%) var(--ry,0%));
+}
+.closing1-reveal-img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  z-index:0;
+}
+
+/* ---- 3 baris teks (How I Work / Experience-Clients / Services & Pricing) ----
+   Font Cal Sans, besar seperti referensi. Teksnya SELALU PUTIH -- yang
+   berubah cuma kotak birunya (di belakang teks, bertekstur noise), jadi
+   teks tidak ikut berubah warna sama sekali. */
+.closing1-lines{
+  position:absolute;
+  left:6vw; bottom:8vh;
+  right:6vw;
+  z-index:2;
+  display:flex; flex-direction:column;
+  align-items:flex-start;
+  gap:2px;
+}
+.closing1-line{
+  position:relative;
+  display:inline-block;
+  overflow:hidden; /* biar kotak birunya ke-crop rapi sesuai bentuk teks */
+  cursor:pointer;
+}
+.closing1-line-text{
+  position:relative;
+  z-index:2;
+  display:block;
+  font-family:var(--display-alt); /* Cal Sans */
+  font-weight:800;
+  font-size:clamp(34px, 8.4vw, 128px); /* GANTI DI SINI kalau mau lebih besar/kecil lagi */
+  line-height:1.02;
+  letter-spacing:-.01em;
+  color:var(--white);
+  text-transform:uppercase;
+}
+.closing1-line-box{
+  position:absolute; inset:0;
+  z-index:1;
+  background-color:#0043FF; /* GANTI DI SINI kalau mau warna kotak beda */
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-blend-mode:overlay; /* bikin tekstur noise-nya nempel di atas biru */
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .45s cubic-bezier(.65,0,.35,1);
+}
+.closing1-line:hover .closing1-line-box{
+  transform:scaleX(1);
+}
+@media (max-width:640px){
+  .closing1-lines{ left:5vw; bottom:6vh; }
+}
+
+.closing1-reveal-btn{
+  position:absolute;
+  top:0; left:50%;
+  /* INI YANG BIKIN JADI SETENGAH BULAT (-50% ke-2 menariknya ke atas) */
+  transform:translate(-50%, -50%); 
+  
+  /* Pastikan ukurannya tetap ada */
+  width:clamp(180px,24vmin,340px);
+  height:clamp(180px,24vmin,340px);
+  
+  border:2px solid rgba(244,242,237,.35); border-radius:50%; background:#000000;
+  cursor:pointer; z-index:3;
+  transition:opacity .6s var(--ease), transform .6s var(--ease), border-color .6s var(--ease);
+}
+.closing1-reveal-btn:hover{
+  border-color:rgba(244,242,237,.6);
+  transform:translate(-50%, -50%) scale(1.04);
+}
+.closing1-reveal-btn.used{
+  opacity:0;
+  transform:translateX(-50%) scale(.6);
+  pointer-events:none;
+}
+.closing1-reveal-btn img{
+  display:block;
+  width:clamp(180px,24vmin,340px);
+  height:auto;
+  object-fit:contain;
+}
+
+.contact-btn{
+  margin-top:12px; padding:16px 40px;
+  border-radius:999px; border:2px solid #fff;
+  color:#fff; text-decoration:none;
+  font-family:var(--display); font-weight:600;
+  transition: background .35s var(--ease), color .35s var(--ease);
+}
+.contact-btn:hover{ background:#fff; color:#000; }
+.footer-note{ font-family:var(--mono); font-size:12px; color:#555; margin-top:40px; }
+
+/* ============ UTIL ============ */
+.hidden{ display:none !important; }
+
+/* Sengaja TIDAK ada media query yang mengubah layout/ukuran/posisi di layar
+   kecil — sesuai permintaan, tampilan di HP harus persis sama seperti di
+   desktop (elemen tidak resize, tidak reflow/stack ulang, posisi tetap).
+   Karena hampir semua ukuran di file ini pakai vw/vh/%, kontennya tetap
+   otomatis memenuhi layar berapa pun ukurannya, hanya lebih rapat di layar
+   sempit — bukan berubah susunan seperti sebelumnya. */
+/* ============ HALAMAN 3: RIWAYAT (foto laptop/buku/kamera) ============
+   Ganti gambar-gambarnya di script.js (cari komentar "HALAMAN 3"):
+   - HISTORY_IMG_BASE   = foto utama (laptop+buku+kamera, kondisi normal)
+   - HISTORY_IMG_LAPTOP = foto saat area laptop di-hover/diklik
+   - HISTORY_IMG_CAMERA = foto saat area kamera di-hover/diklik
+   - HISTORY_IMG_BOOK   = foto saat area buku di-hover/diklik
+   Ke-4 gambar itu HARUS ukuran/rasio sama biar tidak "loncat" — object-fit
+   di bawah sengaja pakai CONTAIN (bukan cover) supaya tidak ada yang ke-crop.
+*/
+#slide1{
+  background:#ffffff;
+}
+.history-photo-wrap{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+}
+.history-photo-img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:contain; /* JANGAN diubah ke "cover" -> biar tidak ke-crop */
+  opacity:0;
+  pointer-events:none;
+  /* GANTI DI SINI kalau mau dissolve-nya lebih cepat/lambat */
+  transition:opacity .6s ease;
+}
+/* Gambar dasar (laptop+buku+kamera bareng) SENGAJA TIDAK ikut fade-out lagi
+   dan TIDAK dikasih transition -> dia selalu tampil penuh opacity di lapis
+   paling bawah. Yang fade in/out cuma gambar fokus (laptop/kamera/buku) di
+   ATAS-nya. Ini yang bikin dissolve-nya halus TANPA kilatan warna background
+   #slide1 kelihatan sekilas — karena di bawahnya selalu ada gambar dasar
+   yang solid, bukan background kosong. */
+#historyImgBase{ opacity:1; z-index:1; transition:none; }
+#historyImgLaptop, #historyImgCamera, #historyImgBook{ z-index:2; }
+.history-photo-wrap.show-laptop #historyImgLaptop,
+.history-photo-wrap.show-camera #historyImgCamera,
+.history-photo-wrap.show-book   #historyImgBook{
+  opacity:1;
+}
+
+/* ---- HOTSPOT (area klik tak kasat mata di atas foto) ----
+   Angka di bawah cuma estimasi posisi laptop/buku/kamera di foto —
+   GESER/RESIZE di sini (dalam %) kalau area klik-nya belum pas nutupin
+   bendanya. left/top = pojok kiri-atas area, width/height = besarnya area. */
+.history-hotspot{
+  position:absolute;
+  z-index:5;
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  padding:0;
+}
+.history-hotspot--book{   left:29%; top:8%;  width:32%; height:38%; }
+.history-hotspot--laptop{ left:23%; top:38%; width:40%; height:52%; }
+.history-hotspot--camera{ left:54%; top:16%; width:32%; height:54%; }
+
+/* ---- PANEL POPUP (kiri: Pengalaman Kerja / Riwayat Sekolah,
+        kanan: Skills & Software) ---- */
+.history-panel{
+  position:absolute;
+  top:50%;
+  width:min(320px, 30vw);
+  max-height:68%;
+  background:#000; /* GANTI DI SINI kalau mau warna panel beda dari hitam */
+  border:1px solid rgba(244,242,237,.14);
+  border-radius:0;
+  padding:24px 20px 20px;
+  z-index:20;
+  display:flex;
+  flex-direction:column;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .4s var(--ease), transform .4s var(--ease);
+}
+.history-panel--left{
+  left:4%;
+  transform:translateY(-50%) translateX(-24px);
+}
+.history-panel--right{
+  right:4%;
+  transform:translateY(-50%) translateX(24px);
+}
+.history-panel.is-open{
+  opacity:1;
+  pointer-events:auto;
+  transform:translateY(-50%) translateX(0);
+}
+/* Versi "compact" dipakai buat Riwayat Sekolah — cuma 4 baris, gak perlu
+   setinggi panel Pengalaman Kerja & gak perlu discroll. */
+.history-panel--left.is-compact{ max-height:none; }
+.history-panel--left.is-compact .history-panel-body{ max-height:none; overflow:visible; }
+
+.history-panel-close{
+  position:absolute; top:14px; right:14px;
+  width:26px; height:26px;
+  border:none; border-radius:50%;
+  background:rgba(244,242,237,.08);
+  color:var(--white);
+  font-size:17px; line-height:1;
+  cursor:pointer;
+  transition:background .2s var(--ease);
+}
+.history-panel-close:hover{ background:rgba(244,242,237,.18); }
+
+.history-panel-title{
+  font-family:var(--display); font-weight:600;
+  font-size:16px;
+  margin:0 0 14px;
+  padding-right:22px;
+  color:var(--white);
+}
+
+.history-panel-tabs{
+  display:flex; gap:8px;
+  margin:0 0 14px;
+  padding-right:22px;
+}
+.history-tab-btn{
+  flex:1;
+  border:1px solid rgba(244,242,237,.2);
+  background:transparent;
+  color:rgba(244,242,237,.65);
+  font-family:var(--body);
+  font-size:11.5px;
+  letter-spacing:.05em;
+  text-transform:uppercase; /* SKILLS / SOFTWARE full kapital */
+  padding:7px 0;
+  border-radius:999px;
+  cursor:pointer;
+  transition:background .25s var(--ease), color .25s var(--ease);
+}
+.history-tab-btn.is-active{
+  background:var(--white);
+  color:var(--black);
+  border-color:var(--white);
+}
+
+.history-panel-body{
+  overflow-y:auto;
+  max-height:calc(68vh - 100px); /* biar riwayat kerja yang panjang bisa di-scroll */
+  display:flex; flex-direction:column; gap:12px;
+  padding-right:6px;
+}
+/* PENTING: harus ada ini, atau atribut [hidden] kalah sama "display:flex"
+   di atas (spesifisitasnya sama, jadi yang belakangan menang) -> akibatnya
+   isi Skills & Software numpuk kelihatan bareng padahal salah satunya
+   seharusnya disembunyikan. */
+.history-panel-body[hidden]{ display:none; }
+.history-panel-body::-webkit-scrollbar{ width:5px; }
+.history-panel-body::-webkit-scrollbar-track{ background:transparent; }
+.history-panel-body::-webkit-scrollbar-thumb{ background:rgba(244,242,237,.25); border-radius:4px; }
+
+.history-list-item{
+  padding-bottom:12px;
+  border-bottom:1px solid rgba(244,242,237,.08);
+}
+.history-list-item:last-child{ border-bottom:none; padding-bottom:0; }
+.history-list-item h4{
+  margin:0 0 2px;
+  font-family:var(--display); font-weight:600;
+  font-size:13px; color:var(--white);
+}
+.history-list-item span{
+  display:block;
+  font-family:var(--mono);
+  font-size:10.5px;
+  color:var(--gray);
+  margin-bottom:4px;
+}
+.history-list-item p{
+  margin:0;
+  font-size:12px; line-height:1.5;
+  color:rgba(244,242,237,.75);
+}
+.history-list-item--compact span{ margin-bottom:0; }
+.history-list-item--plain{
+  font-size:13px;
+  color:rgba(244,242,237,.9);
+  padding:8px 0;
+  border-bottom:1px solid rgba(244,242,237,.08);
+}
+.history-list-item--plain:last-child{ border-bottom:none; }
+
+@media (max-width:720px){
+  .history-panel{ width:min(78vw, 320px); }
+}
+
+/* =====================================================================
+   PAKSA MODE HORIZONTAL DI HP
+   Overlay #rotateGate (ada di index.html) menutup seluruh halaman saat
+   HP dipegang tegak (portrait), lalu hilang sendiri begitu diputar.
+   - GANTI DI SINI: angka 600px = batas lebar "HP". Naikkan ke 820px kalau
+     tablet portrait juga mau diminta putar layar.
+   - pointer:coarse = perangkat layar sentuh, jadi jendela browser desktop
+     yang sengaja dipersempit TIDAK ikut terblokir.
+===================================================================== */
+#rotateGate{
+  display:none;
+  position:fixed; inset:0;
+  z-index:100000; /* di atas preloader (10000), kursor & film grain (9998-9999) */
+  flex-direction:column; align-items:center; justify-content:center;
+  gap:20px;
+  padding:32px 28px;
+  background:var(--black);
+  color:var(--white);
+  text-align:center;
+  touch-action:none;        /* jari tidak bisa scroll halaman di belakangnya */
+  overscroll-behavior:none;
+}
+#rotateGate h2{
+  font-family:var(--display-alt);
+  font-weight:400;
+  font-size:clamp(22px, 6.4vw, 30px);
+  line-height:1.15;
+  letter-spacing:-.4px;
+  max-width:16ch;
+}
+#rotateGate p{
+  font-family:var(--body);
+  font-size:14px;
+  line-height:1.55;
+  color:rgba(244,242,237,.72);
+  max-width:28ch;
+}
+#rotateGate p.rg-hint{
+  margin-top:8px;
+  font-size:12px;
+  color:var(--gray);
+}
+
+.rg-phone{
+  margin-bottom:12px;
+  color:var(--white);
+  animation:rgTurn 3.4s var(--ease) infinite;
+}
+@keyframes rgTurn{
+  0%, 18%  { transform:rotate(0deg); }
+  48%, 78% { transform:rotate(-90deg); }
+  100%     { transform:rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce){
+  .rg-phone{ animation:none !important; transform:rotate(-90deg); }
+}
+
+@media (orientation:portrait) and (pointer:coarse) and (max-width:600px){
+  #rotateGate{ display:flex; }
+}
+
+
+
+/* =====================================================================
+   EXPERIENCE / CLIENTS — halaman "Selected Brands"
+   Tampil di dalam popup #experienceModal (index.html). Semua variabel
+   warna di-scope ke .brands, jadi tidak bentrok dengan tema utama.
+   Font: Cal Sans (judul) sudah dimuat di atas, Montserrat lewat @import.
+   Tone: hitam #051312 / abu #555555 / biru #3d70ff / putih #ffffff
+===================================================================== */
+
+/* pembungkus scroll di dalam popup (isi bisa lebih tinggi dari 1 layar) */
+.experience-modal-track{
+  width:100%; height:100%;
+  overflow-y:auto;
+  overscroll-behavior:contain;      /* scroll mentok tidak nembus ke halaman utama */
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,.25) transparent;
+}
+.experience-modal-track .brands{ min-height:100%; }  /* latar hitam selalu penuh 1 layar */
+
+/* Variabel di-scope ke .brands (bukan :root) supaya aman ditempel ke halaman lain
+     tanpa bentrok sama variabel tema yang sudah ada di sana. */
+  .brands {
+    --bg: #051312;
+    --surface: rgba(85, 85, 85, 0.55);
+    --surface-hover: rgba(85, 85, 85, 0.85);
+    --border: rgba(255, 255, 255, 0.10);
+    --border-hover: rgba(61, 112, 255, 0.55);
+    --blue: #3d70ff;
+    --white: #ffffff;
+    --muted: rgba(255, 255, 255, 0.6);
+    --accent-glow: rgba(61, 112, 255, 0.4);
+    --radius: 22px;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--white);
+    font-family: "Montserrat", -apple-system, sans-serif;
+    padding: clamp(64px, 9vw, 120px) 24px;
+  }
+
+  /* satu aura biru lembut di belakang judul, biar hitam-nya tidak terasa flat */
+  .brands::before {
+    content: "";
+    position: absolute;
+    inset: -15% -10%;
+    z-index: -1;
+    background: radial-gradient(560px 420px at 10% 0%, rgba(61, 112, 255, 0.16), transparent 65%);
+    pointer-events: none;
+  }
+
+  .brands__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  .brands__header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px 56px;
+    margin-bottom: clamp(40px, 6vw, 72px);
+  }
+
+  .brands__title {
+    margin: 0;
+    max-width: 13ch;
+    font-family: "Cal Sans", "Montserrat", sans-serif;
+    font-weight: 400;
+    font-size: clamp(2.1rem, 1.4vw + 1.7rem, 2.9rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--blue);
+  }
+
+  .brands__desc {
+    margin: 0;
+    max-width: 34ch;
+    color: var(--white);
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.65;
+    opacity: 0.85;
+  }
+
+  .brands__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(12px, 1.8vw, 20px);
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  }
+
+  .brands__grid.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (min-width: 560px) {
+    .brands__grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 820px) {
+    .brands__grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (min-width: 1080px) {
+    .brands__grid { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  .brand-box {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;               /* gambar memenuhi kotak, tidak ada bingkai kosong */
+    overflow: hidden;         /* gambar ikut terpotong mengikuti sudut rounded */
+    text-decoration: none;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease),
+                border-color 0.5s var(--ease), background 0.5s var(--ease);
+  }
+
+  .brand-box:hover,
+  .brand-box:focus-visible {
+    transform: translateY(-6px);
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
+    box-shadow: 0 24px 46px -22px var(--accent-glow);
+  }
+
+  .brand-box__logo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;        /* GANTI ke 'contain' kalau mau logo utuh dengan ruang kosong di sekitarnya */
+    filter: grayscale(1);
+    opacity: 0.6;
+    transition: filter 0.5s var(--ease), opacity 0.5s var(--ease), transform 0.5s var(--ease);
+  }
+
+  .brand-box:hover .brand-box__logo,
+  .brand-box:focus-visible .brand-box__logo {
+    filter: grayscale(0);
+    opacity: 1;
+    transform: scale(1.04);
+  }
+
+  /* Placeholder yang muncul selama logo PNG-nya belum ada / path-nya salah */
+  .brand-box__placeholder {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .brand-box.is-empty .brand-box__logo { display: none; }
+  .brand-box.is-empty .brand-box__placeholder { display: flex; }
+
+  .brand-box__placeholder-ring {
+    width: 30%;
+    aspect-ratio: 1 / 1;
+    min-width: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-family: "Montserrat", sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    transition: border-color 0.5s var(--ease), color 0.5s var(--ease);
+  }
+
+  .brand-box:hover .brand-box__placeholder-ring {
+    border-color: var(--border-hover);
+    color: var(--white);
+  }
+
+  .brand-box__placeholder span {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 500;
+    font-size: 0.68rem;
+    letter-spacing: 0.01em;
+    color: var(--muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brands__grid,
+    .brand-box,
+    .brand-box__logo,
+    .brand-box__placeholder-ring {
+      transition: none !important;
+    }
+    .brands__grid { opacity: 1; transform: none; }
+  }
+
+
+/* =====================================================================
+   SERVICES & PRICING — popup #servicesModal (iframe berisi halaman jasa)
+   Iframe memenuhi seluruh layar; tombol tutup (.close-x) ada di atasnya.
+===================================================================== */
+#servicesModal{ background:#0a0a0a; }
+.services-frame{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  border:0;
+  background:#0a0a0a;
+  z-index:1;
+}
+#servicesModal .close-x{ z-index:110; }
