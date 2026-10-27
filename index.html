@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rafi Adhi — Portfolio</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<!-- ============================================================
+<!- ============================================================
      PORTOFOLIO — INDEX.HTML (UPGRADED)
+     Paste ke panel HTML di CodePen.  
      ============================================================ -->
 
 <!-- FILM GRAIN (SVG turbulence, di-refresh oleh JS untuk efek flicker halus) -->
@@ -170,30 +161,37 @@
     <img class="profile-overlay-alt" src="" alt="profil 2 alternatif">
   </section>
   <section id="page4" class="profile-slide">
-    <div id="splitDarken"></div>
+    <!-- 2 KOTAK 3D: Design Archive (kiri) & Content Archive (kanan).
+         Gambarnya diatur lewat CHOOSE_LEFT_IMG / CHOOSE_RIGHT_IMG di script.js.
+         Klik -> transisi pixel -> buka subpage (sama seperti sebelumnya). -->
+    <div class="choose-menu" id="chooseMenu">
 
-    <div class="split-box" id="boxLeft" data-cursor="LIHAT">
-      <div class="split-box-inner">
-        <img class="split-box-bg" src="" alt="graphic design bg">
-        <img class="split-box-bg-hover" src="" alt="graphic design bg hover">
-        <canvas class="split-box-pixel"></canvas>
-        <div class="split-box-label">
-          <span class="split-title">GRAPHIC DESIGNER</span>
-          <span class="split-sub">5-6 Years</span>
+      <div class="choose-card" id="boxLeft" role="button" tabindex="0" aria-label="Arsip Desain" data-cursor="LIHAT">
+        <div class="choose-card__float">
+          <div class="choose-card__tilt">
+            <div class="choose-card__body">
+              <div class="choose-card__media"></div>
+              <div class="choose-card__glare"></div>
+            </div>
+            <div class="choose-card__frame"></div>
+            <h2 class="choose-card__title"><span>5 - 6 Years</span>Design</h2>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="split-box" id="boxRight" data-cursor="LIHAT">
-      <div class="split-box-inner">
-        <img class="split-box-bg" src="" alt="content creator bg">
-        <img class="split-box-bg-hover" src="" alt="content creator bg hover">
-        <canvas class="split-box-pixel"></canvas>
-        <div class="split-box-label">
-          <span class="split-title">CONTENT CREATOR</span>
-          <span class="split-sub">4-5 Years</span>
+      <div class="choose-card" id="boxRight" role="button" tabindex="0" aria-label="Arsip Content" data-cursor="LIHAT">
+        <div class="choose-card__float">
+          <div class="choose-card__tilt">
+            <div class="choose-card__body">
+              <div class="choose-card__media"></div>
+              <div class="choose-card__glare"></div>
+            </div>
+            <div class="choose-card__frame"></div>
+            <h2 class="choose-card__title"><span>4 - 5 Years</span>Content</h2>
+          </div>
         </div>
       </div>
+
     </div>
   </section>
 </main>
@@ -259,15 +257,34 @@
 </section>
 
 <section id="rightSubpage" class="subpage hidden">
+  <!-- CONTENT ARCHIVE (kolom kanan "Content Creator") — kode baru.
+       Isi (judul, kategori, kartu video) dibuat otomatis oleh JS dari
+       BRAND / COVER / D -- cari "GANTI DI SINI: CONTENT ARCHIVE" di script.js.
+       Semua ID diawali "ca" supaya tidak bentrok dengan elemen lain. -->
+  <div class="noise"></div>
   <button class="back-btn" data-cursor="KEMBALI"><img src="" alt="back"></button>
 
-  <h2 class="subpage-title">Content Archive</h2>
+  <div class="stage">
+    <section class="view" id="caHome">
+      <header class="top"><span id="caNl"></span><span id="caNr"></span></header>
+      <h1 class="hero" id="caHero" aria-label="Content Archive"><span class="ln" id="caL1"></span><span class="ln" id="caL2"></span></h1>
+      <p class="intro" id="caIntro"></p>
+      <ul class="menu" id="caMenu"></ul>
+      <div class="grid" id="caGrid"></div>
+    </section>
+  </div>
 
-  <!-- Daftar 20 brand, tiap baris = 1 tombol persegi panjang penuh lebar.
-       Isinya (gambar 1/gif/gambar 2 overlay per baris) dibuat otomatis
-       oleh JS dari array RIGHT_BRANDS -- cari komentar "GANTI DI SINI"
-       di script.js. -->
-  <div class="content-list" id="contentList"></div>
+  <!-- menu kategori yang menempel di atas (muncul saat menu besar ter-scroll keluar layar) -->
+  <nav class="dock" id="caDock" aria-label="Kategori"></nav>
+
+  <!-- pemutar video (popup) -->
+  <div class="modal" id="caModal">
+    <button class="x" id="caMx" aria-label="Tutup" data-cursor="TUTUP">&#10005;</button>
+    <button class="nv p" id="caMp" aria-label="Sebelumnya" data-cursor="SEBELUM">&larr;</button>
+    <div class="phone" id="caPhone"></div>
+    <button class="nv n" id="caMn" aria-label="Berikutnya" data-cursor="LANJUT">&rarr;</button>
+    <div class="mi" id="caMi"></div>
+  </div>
 </section>
 
 <div id="brandModal" class="popup-overlay hidden">
@@ -287,7 +304,7 @@
       <div class="brands__inner">
         <header class="brands__header">
           <h2 class="brands__title">Selected Brands</h2>
-          <p class="brands__desc">Sejumlah brand yang pernah mempercayakan visual mereka kepada saya, dari identitas sampai materi kampanye.</p>
+          <p class="brands__desc">A selection of brands that have trusted me with their visuals, from brand identity to campaign materials.</p>
         </header>
 
         <div class="brands__grid" id="brandsGrid"></div>
@@ -1070,7 +1087,3 @@ Harga final bisa menyesuaikan brief, tingkat kesulitan, dan kebutuhan project.</
   <p id="rotateGateDesc">Portofolio ini dirancang untuk layar lebar. Begitu HP diputar, halaman langsung terbuka.</p>
   <p class="rg-hint">Layar tidak berputar? Nyalakan auto-rotate di pengaturan HP.</p>
 </div>
-
-<script src="script.js"></script>
-</body>
-</html>
