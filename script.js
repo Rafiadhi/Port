@@ -174,27 +174,12 @@ const SOFTWARE_LIST = [
   'DaVinci Resolve',
 ];
 
-const LEFT_NORMAL = 'https://i.imgur.com/XWUOZuM.png';
-const LEFT_HOVER  = 'https://i.imgur.com/LyIHbGf.png';
-
-// KANAN
-const RIGHT_NORMAL = 'https://i.imgur.com/Morl9bc.png';
-const RIGHT_HOVER  = 'https://i.imgur.com/8pbZZMk.png';
-
-// Pasang ke variabel yang dipakai sistem (agar tidak merusak fungsi yang sudah ada)
-const BOX_LEFT_BG  = LEFT_NORMAL;
-const BOX_RIGHT_BG = RIGHT_NORMAL;
+// GANTI DI SINI: gambar 2 kotak pilihan di Halaman 4 (kiri = Design Archive,
+// kanan = Content Archive). Boleh PNG/JPG, rasio bebas (otomatis cover).
+const CHOOSE_LEFT_IMG  = 'https://i.imgur.com/GPcUkPa.png';
+const CHOOSE_RIGHT_IMG = 'https://i.imgur.com/hBjzqxy.png';
 
 const BACK_ICON = 'https://i.imgur.com/rfxoqAE.png';
-
-// GANTI DI SINI: warna & kerapatan titik-titik efek "pixel card" di kotak
-// Graphic Designer / Content Creator (#page4) saat di-hover.
-const SPLIT_BOX_PIXEL_COLORS = '#f8fafc,#f1f5f9,#cbd5e1';
-const SPLIT_BOX_PIXEL_GAP = 5;    // jarak antar titik pixel (px) - makin kecil makin rapat/detail
-const SPLIT_BOX_PIXEL_SPEED = 35; // 0-100, makin besar makin cepat efek "shimmer"-nya
-const SPLIT_BOX_PIXEL_HOLD_MS = 900; // GANTI DI SINI: berapa lama (ms) efek pixel bertahan
-                                      // sebelum otomatis hilang sendiri, walau kursor masih
-                                      // di dalam kolom (jadi efeknya sementara, bukan terus-terusan)
 
 // GANTI DI SINI: gambar & halaman detail buat 9 kategori Design Archive.
 //   bg    = gambar background besar yang muncul di belakang saat teks
@@ -262,145 +247,91 @@ const DESIGN_ARCHIVE_CATEGORIES = {
   },
 };
 
-// GANTI DI SINI: 20 brand untuk Content Archive.
-//  main    = gambar 1 (tampil normal di baris list)
-//  gif     = gif yang jadi BACKGROUND saat baris itu di-hover
-//  overlay = gambar 2 (PNG, biasanya logo/label transparan) yang tampil
-//            DI ATAS gif itu saat di-hover
-//  modalImg = 1 gambar yang muncul di halaman popup saat baris diklik
-//  link    = (opsional) kalau diisi, gambar di popup jadi bisa diklik ke link itu
-const RIGHT_BRANDS = Array.from({ length: 20 }, (_, i) => ({
-  name: `BRAND ${i + 1}`,
-  main: `https://picsum.photos/seed/creator-${i}-main/900/300`,
-  gif: `https://picsum.photos/seed/creator-${i}-gif/900/300`,
-  overlay: `https://picsum.photos/seed/creator-${i}-overlay/900/300`,
-  modalImg: `https://picsum.photos/seed/creator-${i}-modal/1200/1600`,
-  link: '',
-}));
+// GANTI DI SINI: CONTENT ARCHIVE (kolom kanan "Content Creator") — kode baru.
+// Datanya diatur di blok di bawah ini: BRAND (teks kecil di atas halaman),
+// COVER (setelan video cover kartu), dan D (daftar kategori + video tiap kategori).
+// Logic-nya ada di bagian "14) KOTAK KANAN — CONTENT ARCHIVE" di bawah.
+/* ============ EDIT BAGIAN INI ============ */
+const BRAND = {
+  left: "RAFIADHI",      // teks kecil kiri atas
+  right: "PORTFOLIO",    // teks kecil kanan atas
+  logo: "",              // contoh "assets/logo.png" (kosong = tidak tampil)
+  intro: "An archive of short-form videos: UGC, commercial, product, and personal work."
+};
 
-/* =====================================================================
-  1b) PIXEL CARD — efek titik-titik pixel muncul/hilang (dipakai di kotak
-  Graphic Designer & Content Creator, #page4). Port manual (vanilla JS,
-  tanpa React) dari komponen "PixelCard" reactbits.dev, logic animasinya
-  sama persis, cuma dibungkus jadi createPixelCardEffect(canvas) supaya
-  bisa dipasang ke elemen mana saja tinggal panggil .appear() / .disappear().
-===================================================================== */
-class HistoPixel {
-  constructor(canvasWidth, canvasHeight, ctx, x, y, color, speed, delay) {
-    this.width = canvasWidth;
-    this.height = canvasHeight;
-    this.ctx = ctx;
-    this.x = x;
-    this.y = y;
-    this.color = color;
-    this.speed = (Math.random() * 0.8 + 0.1) * speed;
-    this.size = 0;
-    this.sizeStep = Math.random() * 0.4;
-    this.minSize = 0.5;
-    this.maxSizeInteger = 2;
-    this.maxSize = Math.random() * (this.maxSizeInteger - this.minSize) + this.minSize;
-    this.delay = delay;
-    this.counter = 0;
-    this.counterStep = Math.random() * 4 + (this.width + this.height) * 0.01;
-    this.isIdle = false;
-    this.isReverse = false;
-    this.isShimmer = false;
-  }
-  draw() {
-    const centerOffset = this.maxSizeInteger * 0.5 - this.size * 0.5;
-    this.ctx.fillStyle = this.color;
-    this.ctx.fillRect(this.x + centerOffset, this.y + centerOffset, this.size, this.size);
-  }
-  appear() {
-    this.isIdle = false;
-    if (this.counter <= this.delay) { this.counter += this.counterStep; return; }
-    if (this.size >= this.maxSize) this.isShimmer = true;
-    if (this.isShimmer) this.shimmer(); else this.size += this.sizeStep;
-    this.draw();
-  }
-  disappear() {
-    this.isShimmer = false;
-    this.counter = 0;
-    if (this.size <= 0) { this.isIdle = true; return; }
-    this.size -= 0.1;
-    this.draw();
-  }
-  shimmer() {
-    if (this.size >= this.maxSize) this.isReverse = true;
-    else if (this.size <= this.minSize) this.isReverse = false;
-    this.size += this.isReverse ? -this.speed : this.speed;
-  }
-}
+/* Pengaturan cover (video pendek yang berulang di kartu)
+   sec = lama cover (detik) | width = lebar video cover (px) | optimize = true: Cloudinary memotong, mengecilkan, & mengubah ke mp4.
+   Kartu menampilkan gambar statis (diambil otomatis dari cover) dan baru memutar cover saat kursor datang.
+   Di HP/tablet (tanpa kursor) cover diputar otomatis saat terlihat.
+   Kalau cover tidak tampil, coba optimize: false (memakai file asli apa adanya). */
+const COVER = { sec: 2, width: 1080, optimize: true, frame: 1 };   // 1080 = Full HD   // frame = detik ke berapa gambar statis kartu diambil dari cover
 
-function createPixelCardEffect(canvas, holdMs) {
-  if (!canvas) return { appear(){}, disappear(){} };
-  const ctx = canvas.getContext('2d');
-  let pixels = [];
-  let animId = null;
-  let holdTimer = null;
-  let lastTime = performance.now();
+/* A(judul, sub teks, link, cover, poster)
+   link   : Google Drive (atau TikTok / YouTube / Instagram) -> dibuka saat kartu diklik
+   cover  : video Cloudinary untuk kartu. Boleh link penuh, atau cukup bagian setelah "/video/upload/"
+            contoh: "v1793001431/1026_1_3_j4abj1.mov"
+   poster : gambar sampul opsional (tampil sebelum cover dimuat) */
+const A = (title, sub, url, cover = "", poster = "") => ({ title, sub, url, cover, poster });
+const CL = "https://res.cloudinary.com/deqtu9q5f/video/upload/";
+const DR = id => `https://drive.google.com/file/d/${id}/view`;
+const TK = (u, id) => `https://www.tiktok.com/@${u}/video/${id}`;
+const IG = p => `https://www.instagram.com/${p}/`;
+const PB = "panarybody_shoes", SN = "snohund.id";
 
-  function initPixels() {
-    const rect = canvas.parentElement.getBoundingClientRect();
-    const width = Math.max(1, Math.floor(rect.width));
-    const height = Math.max(1, Math.floor(rect.height));
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.width = width + 'px';
-    canvas.style.height = height + 'px';
-
-    const colors = SPLIT_BOX_PIXEL_COLORS.split(',');
-    const speed = Math.max(0.001, parseInt(SPLIT_BOX_PIXEL_SPEED, 10) * 0.001);
-    const gap = Math.max(1, parseInt(SPLIT_BOX_PIXEL_GAP, 10));
-    const pxs = [];
-    for (let x = 0; x < width; x += gap) {
-      for (let y = 0; y < height; y += gap) {
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        const dx = x - width / 2, dy = y - height / 2;
-        const delay = Math.sqrt(dx * dx + dy * dy);
-        pxs.push(new HistoPixel(width, height, ctx, x, y, color, speed, delay));
-      }
-    }
-    pixels = pxs;
-  }
-
-  function loop(fnName) {
-    animId = requestAnimationFrame(() => loop(fnName));
-    const now = performance.now();
-    const passed = now - lastTime;
-    const interval = 1000 / 60;
-    if (passed < interval) return;
-    lastTime = now - (passed % interval);
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let allIdle = true;
-    for (let i = 0; i < pixels.length; i++) {
-      pixels[i][fnName]();
-      if (!pixels[i].isIdle) allIdle = false;
-    }
-    if (allIdle) cancelAnimationFrame(animId);
-  }
-
-  function run(fnName) {
-    cancelAnimationFrame(animId);
-    if (pixels.length === 0) initPixels();
-    animId = requestAnimationFrame(() => loop(fnName));
-  }
-
-  new ResizeObserver(() => initPixels()).observe(canvas.parentElement);
-
-  return {
-    appear() {
-      clearTimeout(holdTimer);
-      run('appear');
-      if (holdMs) holdTimer = setTimeout(() => run('disappear'), holdMs);
-    },
-    disappear() {
-      clearTimeout(holdTimer);
-      run('disappear');
-    },
-  };
-}
+const D = [
+  ["UGC", [
+    A("Too Creative", "Comedy content for Panarybody", DR("1GBHGMqNABO2XyxAIstWpxzB_r8Ebv2IT"), "v1793001431/1026_1_3_j4abj1.mov"),
+    A("Thought It Was Full", "Comedy content for Boemi", DR("1Pgo9Lz8CfD4aCxELNsuUNjvPBnsVUOxP"), "v1793001432/1026_1_pt3qfs.mov"),
+    A("Make Sense", "Comedy content for Panarybody", DR("1jFaqYUuQqzDk0qBY0RtYsR0X28vxyWS5"), "v1793001431/1026_1_-copy_qby9dp.mov"),
+    A("Nowhere to Go", "Comedy content for Boemi", DR("1ju9hrHFFdyxyN2c8WEr5-4-Nb_-cMswW"), "v1793001536/1026_1_-copy_2_rw7y9y.mov"),
+    A("Made for Gen Z", "Comedy content for Panarybody", DR("1NBKpGkGdeaTAUvgxrxh5av2N8Ao1b-PT"), "v1793001431/1026_1_1_aota6a.mov"),
+    A("So Confused", "Comedy content for Boemi", DR("1_J-pejVtBMzIgSikEClZypZtaBZYHkxT"), "v1793001537/1026_1_-copy_5_x8ipl2.mov"),
+    A("Keep Strong", "Comedy content for Boemi", DR("1P-sxr4HFllBRJ-DaZu9XEtt133wX7U6n"), "v1793001536/1026_1_-copy_1_g0nduq.mov"),
+    A("Its Weird", "Comedy content for Panarybody", DR("1ye8pRG3j9tj0wmJzyiw5FzEDa1c2dGIb"), "v1793001440/1026_1_2_d0bjy9.mov"),
+    A("Miss Focus", "Comedy content for Boemi", DR("16YqM2pYWgoYTveU1ywBpffi5U5lvvI6D"), "v1793001536/1026_1_-copy_3_dajczz.mov"),
+    A("Wait! What?", "Comedy content for Boemi", DR("1j3xvlRHO58CNejhPgu-3QljEV5nZ16xl"), "v1793001536/1026_1_-copy_4_gsjycs.mov")
+  ]],
+  ["Commercial", [
+    A("Lintar & Dewi", "Cinematic wedding film", DR("1UK4a3t8Ol_bPT9mlaKRrYvJZpIMITfYm"), "v1793006666/1026_1_-copy_14_cwpgxo.mov"),
+    A("Techwear Jacket", "Collaboration with Renaldy", DR("1owtLUYlAPRH9Wt4myZ8Vhn1P0nL0Vo1W"), "v1793007349/1026_1_-copy_15_i20lyo.mov"),
+    A("Smaniw Event", "Cinematic event film", DR("12UuTDI_-Ox_RdEonVjTQi3AGdG5pYWoj"), "v1793007602/1026_1_-copy_16_zn305i.mov"),
+    A("The Lincoln Story", "A story of perseverance and never giving up", DR("1jHB28qSqCkCMJF4a4Gsar7CB7q5zCokb"), "v1793074099/1026_1_-copy_18_ebfu2s.mov"),
+    A("Dian & Diski", "Cinematic wedding film", DR("1M-w5cSxGBWeJ-_dWlxEEa7MoloxJFIdy"), "v1793006659/1026_1_-copy_13_pxur6q.mov"),
+    A("Affordable Printers", "Printer recommendations by Fast Print", DR("1mqTT6u56gL1jpjowKBkHNnfX2mJof9QJ"), "v1793007608/1026_1_-copy_17_sltuv8.mov"),
+    A("COVID Campaign Breakdown", "Breaking down a public health awareness campaign", DR("1azsDfR71SxJnmRihfBlRtBRYfrTQFkaf"), "v1793074098/1026_1_-copy_19_fvi3pi.mov"),
+    A("Happy Day", "Everyday sneakers", DR("1eE7_vZDR3GCzd92rwJ_bpB5MzZitIx67"), "v1793008163/1026_2_1_fyoykx.mov")
+  ]],
+  ["Product", [
+    A("Batik Sneakers", "Stylish sneakers with a batik touch", DR("1umxXxfJXkFxP-rwY02j5K0uAJJ3e8eOo"), "v1793072487/1026_1_15_xaqpqi.mov"),
+    A("Seagate Hard Drive", "Keep your files safe and secure", DR("1B3EFCuOykO16-S2oHPgDGr6_LbXuCj_p"), "v1793003323/1026_1_-copy_6_ijdmbi.mov"),
+    A("Aessager Charger", "Powerful charging at a surprising price", DR("1qer1S9CTJNetZVHcaCx3TozqIMbF3XVH"), "v1793003318/1026_1_7_b5mohi.mov"),
+    A("Work Bag Essentials", "Getting ready for work with me", DR("1hLO5ctNh8gKL1l7dK9NxC_O7G-nMZyr-"), "v1793073277/1026_1_23_bfojek.mov"),
+    A("Japan Indo Retro", "Outfit inspiration for Japanese lovers", DR("1lRSjQXx1pMsbvPL2T8XCWWhBsKlOsfiC"), "v1793072480/1026_1_14_jatxnl.mov"),
+    A("Clean Bag Design", "Look sharper with a stylish bag", DR("1xfZdq6pFM9iK7I7W-emX6nHLcAB1cGJJ"), "v1793073269/1026_1_21_sfybum.mov"),
+    A("Payday Shoe Haul", "Time to treat myself to new kicks", DR("1Q_fQl8Dpa5qti-HiLGQaBS0qpNXH12qn"), "v1793072479/1026_1_17_xxfwrk.mov"),
+    A("Totoro Toys", "Happy with Inner Child", DR("1Ccm82OBqKT6JlRndm2uQ2fSK4nsNsYrO"), "v1793003322/1026_1_6_gwitkl.mov"),
+    A("Bold Sneakers", "Sneakers for a bold, masculine look", DR("1ZPeAcfwqRpEqK8ydSPYQvxSOl2akiFAf"), "v1793072477/1026_1_19_yt0mjm.mov"),
+    A("Kawai Lights", "Nice dreams with this Stuff", DR("1Um1b5RV2nchlRsyL4Y0CUVz7WD9cwD7w"), "v1793003320/1026_1_-copy_8_buq7w6.mov"),
+    A("The Calm Guy", "Simple bag, effortless style", DR("1SUnQ0WWaYEVqMIhEt6kfFwUeqRKFrh4b"), "v1793073269/1026_1_24_wrgcjt.mov"),
+    A("Fiery Red Duo", "Two pairs, one bold statement", DR("1JxtYK9LByphUm7t9YKeo04DdvJbl1Izx"), "v1793072471/1026_1_20_s4ipha.mov"),
+    A("Worth It TWS?", "By Soundcore", DR("1SNhOPNMgp2If-kOqgPFO1VcAoLKNYFfd"), "v1793003322/1026_1_4_djic5z.mov"),
+    A("Simple Style", "No-fuss sneakers for everyday wear", DR("1DSaj9aJBnHktaFusLCD1PNfIPh9-88y8"), "v1793072479/1026_1_16_owwsux.mov"),
+    A("Ready for Anything", "One bag for all your daily activities", DR("13W5Zk5q0D0TPex1VHk5VdHdGLrPyTLJj"), "v1793073270/1026_1_22_siysbv.mov"),
+    A("One Item Upgrade", "Sneakers that make you look sharper", DR("1z8EFQkAoL1bHBI77kipk0wv6erY_62KB"), "v1793072480/1026_1_18_d3fbhr.mov")
+  ]],
+  ["Personal", [
+    A("Suitcase", "A short film by Rafiadhi", DR("1I-03FnD8w1mhwdHDiv0nf8GN8YgqAn3P"), "v1793003321/1026_1_-copy_10_eozqrh.mov"),
+    A("Pergi Jauh", "A short film by Rafiadhi", DR("1OSv9S2pd6rXYDkvmf2RPYbLbp3Y9ETFc"), "v1793005990/1026_1_-copy_11_rva80f.mov"),
+    A("Fix Sony Lens", "This is not just a lens", DR("1HT2Mmr3VjUVnoqE38kc3EJ5LXEcY-1Aj"), "v1793003237/1026_1_8_ddkdwk.mov"),
+    A("My Content Lost", "A story about how hard it is to go viral", DR("1vX5XOSQgb5BT2mOsxZ5nSz92NwBi_KJ2"), "v1793003323/1026_1_-copy_9_yyjhlk.mov"),
+    A("Lazy People", "Talk to much", DR("1Mf-fguoZpDmJgQvNO5J3xTKjZORZpiX4"), "v1793003321/1026_1_5_msukjw.mov"),
+    A("Creative Industry", "Really easy work?", DR("1W0OXNegzWbbkQDPTteVeJZVSpa23BIY6"), "v1793003506/1026_1_10_wrsbef.mov"),
+    A("U Sure?", "Its Halal Project?", DR("1xJ5QC36bVVcHtzBm32Fb4G6-gd-yqqcq"), "v1793006657/1026_1_13_k0jgih.mov"),
+    A("Need Lightroom?", "Are you oke with that?", DR("1FVDEn0WLDdg1i5ne-Ip8j-hR5jaH6E-j"), "v1793006666/1026_1_12_ufxvje.mov"),
+    A("Camera Office", "Real kah bwang?", DR("1ZZZ-4M8zZ6GsL4PpLGDiWejbfxoXem8U"), "v1793006657/1026_1_11_dpgpmt.mov")
+  ]]
+];
+/* ============ SELESAI ============ */
 
 /* =====================================================================
   2) PRELOADER — progress real berdasar aset yang sedang dimuat
@@ -531,10 +462,11 @@ if (closing1BtnImgEl) closing1BtnImgEl.src = CLOSING1_BTN_IMG;
 const closing1RevealImgEl = document.getElementById('closing1RevealImg');
 if (closing1RevealImgEl) closing1RevealImgEl.src = CLOSING1_REVEAL_IMG;
 
-document.querySelector('#boxLeft .split-box-bg').src = BOX_LEFT_BG;
-document.querySelector('#boxLeft .split-box-bg-hover').src = LEFT_HOVER;
-document.querySelector('#boxRight .split-box-bg').src = BOX_RIGHT_BG;
-document.querySelector('#boxRight .split-box-bg-hover').src = RIGHT_HOVER;
+// 2 kotak pilihan di Halaman 4 (gambar masuk lewat variabel CSS --img)
+[['#boxLeft', CHOOSE_LEFT_IMG], ['#boxRight', CHOOSE_RIGHT_IMG]].forEach(([sel, img]) => {
+  const media = document.querySelector(sel + ' .choose-card__media');
+  if (media && img) media.style.setProperty('--img', `url('${img}')`);
+});
 
 document.querySelectorAll('.back-btn img').forEach(img => img.src = BACK_ICON);
 
@@ -946,54 +878,101 @@ document.querySelectorAll('.kinetic-text').forEach(el => kineticObserver.observe
 
 const boxLeft  = document.getElementById('boxLeft');
 const boxRight = document.getElementById('boxRight');
-const splitDarken = document.getElementById('splitDarken');
-
-[boxLeft, boxRight].forEach(box => {
-  const inner = box.querySelector('.split-box-inner');
-  const pixelFx = createPixelCardEffect(box.querySelector('.split-box-pixel'), SPLIT_BOX_PIXEL_HOLD_MS);
-
-  // Gambar hover (.split-box-bg-hover) sudah di-load dari awal (baris ~181)
-  // dan tinggal di-crossfade lewat CSS begitu class 'popped' aktif/nonaktif
-  // di bawah ini -> lebih pasti kelihatan & transisinya halus (bukan
-  // ganti src yang harus loading ulang tiap hover).
-  box.addEventListener('mouseenter', () => {
-    box.classList.add('popped');
-    splitDarken.classList.add('active');
-    pixelFx.appear();
-  });
-
-  box.addEventListener('mousemove', (e) => {
-    const rect = box.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width - 0.5;
-    const py = (e.clientY - rect.top) / rect.height - 0.5;
-    inner.style.transform = `rotateY(${px * 6}deg) rotateX(${-py * 6}deg)`;
-  });
-
-  box.addEventListener('mouseleave', () => {
-    box.classList.remove('popped');
-    splitDarken.classList.remove('active');
-    inner.style.transform = 'rotateY(0deg) rotateX(0deg)';
-    pixelFx.disappear();
-  });
-});
-
 const leftSubpage  = document.getElementById('leftSubpage');
 const rightSubpage = document.getElementById('rightSubpage');
 
-boxLeft.addEventListener('click', () => {
-  pixelTransitionRun(() => openSubpage(leftSubpage));
-});
+/* 2 kotak 3D: miring mengikuti kursor (lerp halus), kilau & parallax gambar.
+   Klik (atau Enter/Spasi) -> transisi pixel -> buka subpage kiri/kanan. */
+(function(){
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lerp = (a, b, n) => a + (b - a) * n;
+  let opening = false;
 
-boxRight.addEventListener('click', () => {
-  pixelTransitionRun(() => openSubpage(rightSubpage));
-});
+  [[boxLeft, leftSubpage], [boxRight, rightSubpage]].forEach(([card, subpage]) => {
+    if (!card || !subpage) return;
+    const tilt = card.querySelector('.choose-card__tilt');
+    const target = { rx: 0, ry: 0, s: 1, lift: 0, mx: 50, my: 50, px: 0, py: 0 };
+    const now    = { ...target };
+    let raf = null;
+
+    const render = () => {
+      let moving = false;
+      for (const k in now) {
+        now[k] = lerp(now[k], target[k], 0.12);
+        if (Math.abs(now[k] - target[k]) > 0.01) moving = true;
+      }
+      tilt.style.setProperty('--rx', now.rx.toFixed(2) + 'deg');
+      tilt.style.setProperty('--ry', now.ry.toFixed(2) + 'deg');
+      tilt.style.setProperty('--s', now.s.toFixed(3));
+      tilt.style.setProperty('--lift', now.lift.toFixed(1) + 'px');
+      tilt.style.setProperty('--mx', now.mx.toFixed(1) + '%');
+      tilt.style.setProperty('--my', now.my.toFixed(1) + '%');
+      tilt.style.setProperty('--px', now.px.toFixed(3));
+      tilt.style.setProperty('--py', now.py.toFixed(3));
+      raf = moving ? requestAnimationFrame(render) : null;
+    };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(render); };
+
+    const reset = () => {
+      Object.assign(target, { rx: 0, ry: 0, s: 1, lift: 0, mx: 50, my: 50, px: 0, py: 0 });
+      kick();
+    };
+
+    card.addEventListener('pointermove', (e) => {
+      if (reduceMotion || opening) return;
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      const y = (e.clientY - r.top) / r.height;
+      target.ry = (x - 0.5) * 18;
+      target.rx = (0.5 - y) * 14;
+      target.px = x - 0.5;
+      target.py = y - 0.5;
+      target.mx = x * 100;
+      target.my = y * 100;
+      target.lift = 30;
+      target.s = 1.02;
+      kick();
+    });
+
+    card.addEventListener('pointerleave', () => { if (!opening) reset(); });
+    card.addEventListener('pointerdown', () => { if (opening) return; target.s = 0.97; target.lift = 0; kick(); });
+    card.addEventListener('pointerup',   () => { if (opening) return; target.s = 1.02; target.lift = 30; kick(); });
+
+    // fokus keyboard: angkat kotak tanpa miring
+    card.addEventListener('focus', () => { if (opening) return; target.lift = 30; target.s = 1.02; kick(); });
+    card.addEventListener('blur', () => { if (!opening) reset(); });
+
+    // klik: kotak membesar sedikit, transisi pixel menutup layar, lalu subpage dibuka
+    const open = () => {
+      if (opening) return;
+      opening = true;
+      card.classList.add('is-leaving');
+      target.s = 1.06; target.lift = 0; kick();
+      pixelTransitionRun(() => {
+        openSubpage(subpage);
+        card.classList.remove('is-leaving');
+        opening = false;
+        reset();
+      });
+    };
+    card.addEventListener('click', open);
+    // elemennya <div role="button">, jadi Enter/Spasi dipasang manual
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        open();
+      }
+    });
+  });
+})();
 
 function openSubpage(el) {
   el.classList.remove('hidden');
   requestAnimationFrame(() => el.classList.add('visible'));
-  if (el === rightSubpage) initContentArchive();
+  if (el === rightSubpage) contentArchive.init();
 }
 function closeSubpage(el) {
+  if (el === rightSubpage) contentArchive.closeModal(); // hentikan video kalau pemutar masih terbuka
   el.classList.remove('visible');
   setTimeout(() => { el.classList.add('hidden'); }, 800);
 }
@@ -1054,38 +1033,192 @@ document.querySelectorAll('.archive-cat-line').forEach(line => {
 archiveCatList.addEventListener('mouseleave', () => setArchiveBg(null));
 
 /* =====================================================================
-  14) KOTAK KANAN — CONTENT ARCHIVE (list 20 brand, baris persegi panjang)
+  14) KOTAK KANAN — CONTENT ARCHIVE (kode baru)
+  Hero "CONTENT ARCHIVE" 3D, menu kategori (UGC / Commercial / Product /
+  Personal), grid video, dan pemutar popup. Datanya (judul, link, cover)
+  diatur di blok "GANTI DI SINI: CONTENT ARCHIVE" di bagian atas file ini
+  (BRAND, COVER, D). Elemen HTML-nya ada di #rightSubpage (index.html),
+  CSS-nya di bagian "RIGHT SUBPAGE" style.css.
+  Dibungkus fungsi supaya nama variabelnya tidak bentrok dengan bagian lain.
+  Yang dipanggil dari luar cuma: init() / closeModal() / isModalOpen().
 ===================================================================== */
+const contentArchive = (function(){
+  const byId = (id) => document.getElementById(id);
+  const home = byId('caHome'), grid = byId('caGrid'), menu = byId('caMenu'),
+        hero = byId('caHero'), dock = byId('caDock'), modal = byId('caModal'),
+        phone = byId('caPhone'), infoEl = byId('caMi');
+  if (!home || !grid || !menu || !hero || !dock || !modal || !phone || !infoEl) {
+    return { init(){}, closeModal(){}, isModalOpen(){ return false; } };
+  }
 
-const contentList = document.getElementById('contentList');
-let contentListBuilt = false;
+  let ci = 0, mi = 0;
+  const pad = (n) => String(n + 1).padStart(2, '0');
 
-function buildContentList() {
-  if (contentListBuilt) return;
-  contentListBuilt = true;
-  RIGHT_BRANDS.forEach((brand) => {
-    const row = document.createElement('button');
-    row.type = 'button';
-    row.className = 'content-row';
-    row.innerHTML = `
-      <img class="content-row-main" src="${brand.main}" alt="${brand.name}">
-      <img class="content-row-gif" src="${brand.gif}" alt="">
-      <img class="content-row-overlay" src="${brand.overlay}" alt="">
-      <span class="content-row-name">${brand.name}</span>
-    `;
-    row.addEventListener('mouseenter', () => row.classList.add('is-hover'));
-    row.addEventListener('mouseleave', () => row.classList.remove('is-hover'));
-    row.addEventListener('click', () => {
-      openBrandModal([{ bg: brand.modalImg, link: brand.link }]);
-    });
-    contentList.appendChild(row);
+  /* deteksi jenis link */
+  const TT = 'https://www.tiktok.com/player/v1/', YT = 'https://www.youtube.com/embed/';
+  const tt = (u) => (u.match(/tiktok\.com\/.*?video\/(\d+)/) || [])[1];
+  const yt = (u) => (u.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/) || [])[1];
+  const dr = (u) => (u.match(/drive\.google\.com\/file\/d\/([\w-]+)/) || [])[1];
+  const ig = (u) => { const m = u.match(/instagram\.com\/(p|reel|reels|tv)\/([\w-]+)/); return m ? `https://www.instagram.com/${m[1] === 'reels' ? 'reel' : m[1]}/${m[2]}/embed` : ''; };
+  const driveThumb = (v) => dr(v.url) ? `https://drive.google.com/thumbnail?id=${dr(v.url)}&sz=w1000` : '';
+  const still = (u) => (u.startsWith('http') ? u : CL + u).replace('/video/upload/', `/video/upload/so_${COVER.frame},c_limit,w_${COVER.width},q_auto:good/`).replace(/\.[a-z0-9]+$/i, '.jpg');
+  const poster = (v) => v.poster || (v.cover ? still(v.cover) : driveThumb(v));
+  const cov = (u) => {
+    if (!u) return '';
+    const url = u.startsWith('http') ? u : CL + u;
+    if (!COVER.optimize || !url.includes('/video/upload/')) return url;
+    return url.replace('/video/upload/', `/video/upload/so_0,du_${COVER.sec},c_limit,w_${COVER.width},q_auto:good,ac_none,vc_h264/`).replace(/\.[a-z0-9]+$/i, '.mp4');
+  };
+
+  /* kursor: pakai kursor custom portofolio (#cursorRing). Untuk elemen yang
+     dibuat lewat JS (kartu), listener-nya dipasang manual di sini. */
+  const resetCursor = () => { cursorRing.classList.remove('is-hover'); cursorLabel.textContent = ''; };
+  const bindCursor = (node, label) => {
+    node.addEventListener('mouseenter', () => { cursorRing.classList.add('is-hover'); cursorLabel.textContent = label; });
+    node.addEventListener('mouseleave', resetCursor);
+  };
+
+  /* teks atas */
+  byId('caNl').innerHTML = (BRAND.logo ? `<img src="${BRAND.logo}" alt="">` : '') + BRAND.left;
+  byId('caNr').textContent = BRAND.right;
+  byId('caIntro').textContent = BRAND.intro;
+
+  /* judul CONTENT ARCHIVE + efek miring saat kursor datang */
+  const split = (el, t, o = 0) => { el.innerHTML = [...t].map((c, i) => `<span style="--i:${i + o}">${c}</span>`).join(''); };
+  split(byId('caL1'), 'CONTENT'); split(byId('caL2'), 'ARCHIVE', 7);
+  let heroTimer = null;
+  function playHero(){            // putar ulang animasi huruf tiap halaman dibuka
+    clearTimeout(heroTimer);
+    hero.classList.remove('in');
+    void hero.offsetWidth;        // paksa browser menghitung ulang posisi awal
+    heroTimer = setTimeout(() => hero.classList.add('in'), 80);
+  }
+  hero.addEventListener('mousemove', (e) => {
+    const r = hero.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    hero.style.transform = `perspective(1000px) rotateY(${x * 18}deg) rotateX(${-y * 18}deg)`;
   });
-}
+  hero.addEventListener('mouseleave', () => { hero.style.transform = ''; });
 
-function initContentArchive() {
-  buildContentList();
-  contentList.scrollTop = 0;
-}
+  /* menu kategori */
+  menu.innerHTML = D.map((d, i) => `<li data-i="${i}"><a href="#${d[0].toLowerCase()}"><span class="wipe">${d[0].toUpperCase()}</span></a></li>`).join('');
+  const setActive = () => {
+    [...menu.children].forEach((li, i) => li.classList.toggle('on', i === ci));
+    [...dock.children].forEach((a, i) => a.classList.toggle('on', i === ci));
+  };
+  menu.addEventListener('click', (e) => {
+    const li = e.target.closest('li'); if (!li) return;
+    e.preventDefault();
+    if (+li.dataset.i === ci) return;
+    ci = +li.dataset.i; setActive(); render();
+  });
+
+  /* menu kategori yang menempel di atas: muncul saat menu besar sudah ter-scroll keluar layar */
+  dock.innerHTML = D.map((d, i) => `<a href="#${d[0].toLowerCase()}" data-i="${i}"><span class="wipe">${d[0].toUpperCase()}</span></a>`).join('');
+  new IntersectionObserver(([e]) => dock.classList.toggle('show', !e.isIntersecting && e.boundingClientRect.top < 0), { root: home }).observe(menu);
+  dock.addEventListener('click', (e) => {
+    const a = e.target.closest('a'); if (!a) return;
+    e.preventDefault();
+    if (+a.dataset.i !== ci) { ci = +a.dataset.i; setActive(); render(); }
+    home.scrollTo({ top: Math.max(0, grid.offsetTop - 90), behavior: 'smooth' });   // kembali ke awal grid kategori
+  });
+
+  /* kemunculan kartu + iframe TikTok/YouTube dimuat saat terlihat */
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('in');
+    const f = e.target.querySelector('iframe.tt');
+    if (f) f.src = TT + f.dataset.id + '?autoplay=1&muted=1&loop=1&controls=0&music_info=0&description=0&rel=0';
+    const y = e.target.querySelector('iframe.yt');
+    if (y) y.src = `${YT}${y.dataset.id}?autoplay=1&mute=1&loop=1&playlist=${y.dataset.id}&controls=0&playsinline=1&rel=0&modestbranding=1`;
+    io.unobserve(e.target);
+  }), { root: home, threshold: .12 });
+
+  /* cover video: dimuat & diputar saat kursor datang (di layar sentuh: otomatis saat terlihat) */
+  const TOUCH = matchMedia('(hover: none)').matches;
+  const cvIO = new IntersectionObserver((es) => es.forEach((e) => {
+    const v = e.target;
+    if (!TOUCH) return;   // di desktop, cover dimuat saat kursor datang
+    if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else v.pause();
+  }), { root: home, threshold: .25 });
+
+  function render(){
+    const items = D[ci][1];
+    io.disconnect(); cvIO.disconnect();
+    grid.innerHTML = items.map((v, k) => {
+      const p = poster(v), id = tt(v.url), yid = yt(v.url), c = cov(v.cover);
+      return `
+      <article class="card" data-k="${k}">
+        <div class="ph" style="--p:${14 + k * 6}%"><span class="num">${pad(k)}</span>
+          ${p ? `<img src="${p}" data-f="${p === driveThumb(v) ? '' : driveThumb(v)}" alt="${v.title}" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.f){this.src=this.dataset.f;this.dataset.f=''}else this.remove()">` : ''}
+          ${c ? `<video class="cv" data-src="${c}" muted loop playsinline preload="auto"></video>` : ''}
+          ${id && !c ? `<iframe class="tt" data-id="${id}" title="${v.title}" allow="autoplay" tabindex="-1"></iframe>` : ''}
+          ${yid && !c ? `<iframe class="yt" data-id="${yid}" title="${v.title}" allow="autoplay" tabindex="-1"></iframe>` : ''}
+        </div>
+        <h3>${v.title}</h3><p>${v.sub}</p>
+      </article>`;
+    }).join('');
+    grid.querySelectorAll('.card').forEach((el) => { io.observe(el); bindCursor(el, 'LIHAT'); });
+    grid.querySelectorAll('video.cv').forEach((el) => {
+      el.addEventListener('timeupdate', () => { if (el.currentTime >= COVER.sec) el.currentTime = 0; });   // batasi loop ke durasi cover
+      el.addEventListener('playing', () => el.classList.add('on'));
+      cvIO.observe(el);
+    });
+  }
+
+  grid.addEventListener('mousemove', (e) => {
+    const p = e.target.closest('.ph'); if (!p) return;
+    const r = p.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    p.style.setProperty('--rx', -y * 14 + 'deg'); p.style.setProperty('--ry', x * 14 + 'deg');
+    p.style.setProperty('--gx', (x + .5) * 100 + '%'); p.style.setProperty('--gy', (y + .5) * 100 + '%');
+  });
+  grid.addEventListener('mouseout', (e) => {
+    const p = e.target.closest('.ph');
+    if (p && !p.contains(e.relatedTarget)) { p.style.setProperty('--rx', '0deg'); p.style.setProperty('--ry', '0deg'); }
+  });
+  /* kursor datang -> putar cover; kursor pergi -> kembali ke gambar statis */
+  const cvOf = (e) => { const c = e.target.closest('.card'); return c && !c.contains(e.relatedTarget) ? c.querySelector('video.cv') : null; };
+  grid.addEventListener('mouseover', (e) => { const v = cvOf(e); if (v) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } });
+  grid.addEventListener('mouseout', (e) => { const v = cvOf(e); if (v && !TOUCH) { v.pause(); v.currentTime = 0; v.classList.remove('on'); } });
+  grid.addEventListener('click', (e) => { const c = e.target.closest('.card'); if (c) openM(+c.dataset.k); });
+
+  /* modal pemutar (semua portrait) */
+  function openM(k){
+    const list = D[ci][1]; mi = (k + list.length) % list.length;
+    const v = list[mi], id = tt(v.url), yid = yt(v.url), igu = ig(v.url), d = dr(v.url);
+    phone.className = 'phone';
+    phone.innerHTML = yid ? `<iframe src="${YT}${yid}?autoplay=1&rel=0&playsinline=1" allow="autoplay;fullscreen" allowfullscreen></iframe>`
+      : id ? `<iframe src="${TT}${id}?autoplay=1&loop=1&controls=1&music_info=0&description=0&rel=0" allow="autoplay;fullscreen" allowfullscreen></iframe>`
+      : igu ? `<iframe src="${igu}" scrolling="no" allow="autoplay;fullscreen;encrypted-media" allowfullscreen></iframe>`
+      : d ? `<iframe src="https://drive.google.com/file/d/${d}/preview" allow="autoplay;fullscreen" allowfullscreen></iframe>`
+      : `<div class="ph"><span class="num">${pad(mi)}</span></div>`;
+    infoEl.textContent = `${pad(mi)} — ${v.title}`;
+    modal.classList.add('open');
+  }
+  function closeM(){ modal.classList.remove('open'); phone.innerHTML = ''; }
+  byId('caMx').addEventListener('click', closeM);
+  byId('caMp').addEventListener('click', () => openM(mi - 1));
+  byId('caMn').addEventListener('click', () => openM(mi + 1));
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeM(); });
+  /* tombol Esc ditangani di bagian "16) ESC" (supaya Esc pertama cuma menutup
+     pemutar, bukan langsung menutup seluruh halaman Content Archive) */
+  addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('open')) return;
+    if (e.key === 'ArrowLeft') openM(mi - 1);
+    if (e.key === 'ArrowRight') openM(mi + 1);
+  });
+
+  /* dipanggil tiap kali halaman Content Archive dibuka (lihat openSubpage) */
+  function init(){
+    resetCursor();
+    ci = 0; setActive(); render();
+    home.scrollTop = 0;
+    dock.classList.remove('show');
+    playHero();
+  }
+
+  setActive();
+  return { init, closeModal: closeM, isModalOpen: () => modal.classList.contains('open') };
+})();
 
 /* =====================================================================
   15) MODAL ISI BRAND — jumlah halaman dinamis (1 buat Content Archive,
@@ -1254,6 +1387,7 @@ document.addEventListener('keydown', (e) => {
   else if (experienceModal.classList.contains('visible')) closePopupOverlay(experienceModal);
   else if (brandModal.classList.contains('visible')) closePopupOverlay(brandModal);
   else if (circlePopupOverlay.classList.contains('visible')) closePopupOverlay(circlePopupOverlay);
+  else if (contentArchive.isModalOpen()) contentArchive.closeModal();   // pemutar video Content Archive
   else if (leftSubpage.classList.contains('visible')) closeSubpage(leftSubpage);
   else if (rightSubpage.classList.contains('visible')) closeSubpage(rightSubpage);
 });
