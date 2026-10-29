@@ -24,20 +24,17 @@ const CURSOR_SPOT_RADIUS = 150;
 const START_BTN_DEFAULT_IMG = 'https://i.imgur.com/4ubMm6V.png';
 const START_BTN_HOVER_IMG = 'https://i.imgur.com/3vlXytg.png';
 
-const CIRCLE_BTN_IMG   = '';
-const CIRCLE_POPUP_IMG = '';
+// GANTI DI SINI: pengaturan loading awal & scroll antar halaman
+const PRELOADER_MIN_MS = 3600;   // loading minimal (ms) — makin besar makin lama, biar semua aset siap & tanpa lag
+const PRELOADER_MAX_MS = 16000;  // batas paling lama (ms) kalau ada aset yang macet
+const PAGE_SCROLL_MS   = 1100;   // lama animasi pindah halaman (ms) — makin besar makin pelan & halus
 
-// PROFILE_SLIDES[0] dipakai khusus untuk PROFIL 1 (tumpukan 3 gambar):
-// bg = gambar 1 (background), overlay = gambar 2 (orang, langsung tampil),
-// overlay2 = gambar 3 (teks, baru muncul setelah tombol "tap to know me"
-// diklik & gif transisi selesai — lihat PROFILE1_TAP_BTN_IMG &
-// PROFILE1_TRANSITION_GIF di bawah). PROFILE_SLIDES[2] tetap dipakai apa
-// adanya untuk Profil 2.
-const PROFILE_SLIDES = [
-  { bg: 'https://i.imgur.com/lS63uv5.png', overlay: 'https://i.imgur.com/pHZsp6z.png', overlay2: 'https://i.imgur.com/6cBjlQk.png' },
-  { bg: 'https://i.imgur.com/E11DUKg.png', overlay: '', overlay2: '' },
-  { bg: 'https://i.imgur.com/7ACj9T8.png', overlay: 'https://i.imgur.com/5c8cgBp.png', overlay2: 'https://i.imgur.com/c5mSTvt.png' },
-];
+// Gambar PROFIL 1 (tumpukan 3 lapis): bg = background, overlay = orang,
+// overlay2 = teks (baru muncul setelah tombol "tap to know me" diklik &
+// gif transisi selesai — lihat PROFILE1_TAP_BTN_IMG & PROFILE1_TRANSITION_GIF).
+const PROFILE1 = { bg: 'https://i.imgur.com/lS63uv5.png', overlay: 'https://i.imgur.com/pHZsp6z.png', overlay2: 'https://i.imgur.com/6cBjlQk.png' };
+// Gambar PROFIL 2 (halaman statistik angka naik)
+const PROFILE2 = { bg: 'https://i.imgur.com/7ACj9T8.png', overlay: 'https://i.imgur.com/cDFvwlR.png', overlay2: 'https://i.imgur.com/l43olKq.png' };
 
 // GANTI DI SINI: PNG tombol "tap to know me" (menggantikan teks) — muncul
 // di tengah tumpukan Profil 1. Ukurannya diatur lewat --tap-btn-w di
@@ -53,6 +50,21 @@ const PROFILE1_TRANSITION_GIF = 'https://i.imgur.com/Lp5W8Gg.gif';
 // GANTI DI SINI: durasi gif di atas diputar (milidetik) sebelum gambar 3
 // muncul. Samakan kira-kira dengan panjang 1x putaran gif kamu.
 const PROFILE1_GIF_DURATION = 1200;
+
+// GANTI DI SINI: teks statistik di Profil 2 (angkanya naik / count-up tiap halamannya tampil).
+// value = angka akhir, prefix/suffix = teks sebelum/sesudah angka, label = judul kecil,
+// desc = deskripsi (\n = pindah baris), x = posisi kiri kolom (piksel pada gambar 2560 lebar).
+// Font/ukuran/posisi vertikal: lihat ".profile-stat" di style.css.
+const PROFILE2_STATS = [
+  { value: 50,  prefix: '', suffix: '+', x: 216,  label: 'BRANDS COLLABORATED',
+    desc: 'Partnering with local and growing brands\nto craft impactful visual identities and engaging content.' },
+  { value: 6,   prefix: '', suffix: '+', x: 1003, label: 'YEARS OF EXPERIENCE',
+    desc: 'Years of hands-on experience delivering creative\nsolutions across branding, social media, and digital campaigns.' },
+  { value: 300, prefix: '', suffix: '+', x: 1686, label: 'CREATIVE PROJECTS',
+    desc: 'Successfully completed hundreds of design and content\nprojects with a focus on quality, consistency, and results.' },
+];
+const PROFILE2_COUNT_MS = 1800;   // lama animasi naik tiap angka (ms)
+const PROFILE2_STAGGER_MS = 150;  // jeda antar angka (ms)
 
 // GANTI DI SINI: 3 icon bulat untuk popup "Contact Me" (untuk sekarang dikasih contoh icon random)
 const CONTACT_LINKS = [
@@ -79,9 +91,6 @@ const CLOSING1_REVEAL_IMG = 'https://i.imgur.com/cedM7GN.png';
 // halaman "Selected Brands" (HTML) yang logonya diatur di BRAND_LOGOS di bawah.
 const CLOSING1_LINE_PAGES = {
   howiwork: [
-    { bg: '', link: '' },
-  ],
-  services: [
     { bg: '', link: '' },
   ],
 };
@@ -124,55 +133,44 @@ const BRAND_LOGOS = [
 ];
 
 /* =====================================================================
-  HALAMAN 3 — RIWAYAT (foto laptop/buku/kamera)
-  Ke-4 gambar di bawah HARUS ukuran & rasio yang sama (kamu sudah samakan
-  ini dengan gambar 1) supaya tidak "loncat" pas berganti.
+  HALAMAN 2 — ARCHIVE (School / Experience / Skills / Programs)
+  GANTI DI SINI: isi tiap tab. Tiap item: title / place (opsional) / note (opsional)
 ===================================================================== */
-const HISTORY_IMG_BASE   = 'https://i.imgur.com/SFMuNNJ.png'; // foto utama: laptop + buku + kamera, kondisi normal
-const HISTORY_IMG_LAPTOP = 'https://i.imgur.com/x9RfFGl.png'; // foto saat area laptop di-hover/diklik
-const HISTORY_IMG_CAMERA = 'https://i.imgur.com/2xq8ysk.png'; // foto saat area kamera di-hover/diklik
-const HISTORY_IMG_BOOK   = 'https://i.imgur.com/C6uSgUY.png'; // foto saat area buku di-hover/diklik
-
-// GANTI DI SINI: daftar pengalaman kerja (laptop). Urutan sesuai urutan array.
-const WORK_EXPERIENCE = [
-  { role: 'Intern Editor Video', company: 'PT BBS TV', desc: 'Editing TV programs and various news segments.' },
-  { role: 'Photographer & Editor', company: 'CV ARTISTIC PHOTO', desc: 'Documenting events, weddings, and graduations, and creating video and photo content through editing.' },
-  { role: 'Content Creator & Editor', company: 'PT FAST PRINT INDONESIA', desc: 'Creating content for YouTube and appearing on-camera as a talent in the videos.' },
-  { role: 'Freelance Design Graphic', company: 'BANTUJUANMU.ID', desc: 'Creating designs focused on brand identity and business growth.' },
-  { role: 'Content Creator', company: 'PT RAISE INFINITY GLOBAL', desc: 'Creating video content and designs for several local fashion brands.' },
-  { role: 'Photographer & Editor', company: 'PUKUDATA VISUAL', desc: 'Documenting events, weddings, and graduations, and creating video and photo content through editing.' },
-  { role: 'Content Creator', company: 'RAFI ADHI', desc: 'This is my personal account, where I frequently create content featuring educational material, showreels, and behind-the-scenes looks at my projects.' },
-  { role: 'Clothing Designer', company: 'MAJERROU', desc: 'Designing casual wear for a local brand.' },
-  { role: 'Editor Video', company: 'WARKO CREATIVE', desc: 'Editing content for several brands focused on electronics.' },
-  { role: 'Design Graphic', company: 'APK CREATIVE', desc: 'Designing for multiple brands and growing the business through a remote work system.' },
-  { role: 'Freelance Design Graphic', company: 'RAFI ADHI', desc: 'Taking on remote freelance graphic design work for several brands.' },
-];
-
-// GANTI DI SINI: daftar riwayat sekolah (buku) — cuma 4 baris
-const SCHOOL_HISTORY = [
-  { name: 'SD Raden Patah', place: 'Surabaya' },
-  { name: 'SMP Negeri 20', place: 'Surabaya' },
-  { name: 'SMK Negeri 1 Surabaya', place: 'Broadcasting Department' },
-  { name: 'Universitas Dr Soetomo', place: 'Surabaya - Communication Studies' },
-];
-
-// GANTI DI SINI: daftar skill kamu (tab "Skills" di panel kamera)
-const SKILLS_LIST = [
-  'Videography',
-  'Photography',
-  'Graphic Design',
-  'Video Editing',
-  'Content Writing',
-];
-
-// GANTI DI SINI: daftar software yang kamu bisa (tab "Software" di panel kamera)
-const SOFTWARE_LIST = [
-  'Adobe Premiere Pro',
-  'Adobe Photoshop',
-  'Adobe Illustrator',
-  'CapCut',
-  'DaVinci Resolve',
-];
+const HISTORY_DATA = {
+  school: {
+    n: "01", title: "School", sub: "Where I studied", meta: "4 schools",
+    items: [
+      { title: "SD Raden Patah", place: "Surabaya" },
+      { title: "SMP Negeri 20", place: "Surabaya" },
+      { title: "SMK Negeri 1 Surabaya", place: "Broadcasting Department" },
+      { title: "Universitas Dr Soetomo", place: "Surabaya – Communication Studies" }
+    ]
+  },
+  experience: {
+    n: "02", title: "Experience", sub: "Work and collaborations", meta: "11 roles", full: true,
+    items: [
+      { title: "Intern Editor Video", place: "PT BBS TV", note: "Editing TV programs and various news segments." },
+      { title: "Photographer & Editor", place: "CV Artistic Photo", note: "Documenting events, weddings, and graduations, and creating video and photo content through editing." },
+      { title: "Content Creator & Editor", place: "PT Fast Print Indonesia", note: "Creating content for YouTube and appearing on-camera as a talent in the videos." },
+      { title: "Freelance Design Graphic", place: "Bantujuanmu.id", note: "Creating designs focused on brand identity and business growth." },
+      { title: "Content Creator", place: "PT Raise Infinity Global", note: "Creating video content and designs for several local fashion brands." },
+      { title: "Photographer & Editor", place: "Pukudata Visual", note: "Documenting events, weddings, and graduations, and creating video and photo content through editing." },
+      { title: "Content Creator", place: "Rafi Adhi", note: "This is my personal account, where I frequently create content featuring educational material, showreels, and behind-the-scenes looks at my projects." },
+      { title: "Clothing Designer", place: "Majerrou", note: "Designing casual wear for a local brand." },
+      { title: "Editor Video", place: "Warko Creative", note: "Editing content for several brands focused on electronics." },
+      { title: "Design Graphic", place: "APK Creative", note: "Designing for multiple brands and growing the business through a remote work system." },
+      { title: "Freelance Design Graphic", place: "Rafi Adhi", note: "Taking on remote freelance graphic design work for several brands." }
+    ]
+  },
+  skills: {
+    n: "03", title: "Skills", sub: "What I do", meta: "10 skills",
+    items: ["Graphic Design", "Video Editing", "Videography", "Photography", "AI Prompt Engineering", "Content Strategy", "Content Management", "Content Writing", "Team Leadership", "Task & Workflow Management"].map(t => ({ title: t }))
+  },
+  programs: {
+    n: "04", title: "Programs", sub: "Software I work with", meta: "8 programs",
+    items: ["Adobe Premiere Pro", "Adobe Photoshop", "Adobe Illustrator", "CapCut", "DaVinci Resolve", "Figma", "Adobe Lightroom", "Corel Draw"].map(t => ({ title: t }))
+  }
+};
 
 // GANTI DI SINI: gambar 2 kotak pilihan di Halaman 4 (kiri = Design Archive,
 // kanan = Content Archive). Boleh PNG/JPG, rasio bebas (otomatis cover).
@@ -334,58 +332,114 @@ const D = [
 /* ============ SELESAI ============ */
 
 /* =====================================================================
-  2) PRELOADER — progress real berdasar aset yang sedang dimuat
+  2) PRELOADER — memuat SEMUA isi web dulu (gambar, GIF, font) lalu di-decode,
+  baru halaman dibuka. Hasilnya: scroll & animasi setelah itu tidak lag.
+  Lama minimal: PRELOADER_MIN_MS. Aset yang macet tidak menahan > PRELOADER_MAX_MS.
 ===================================================================== */
 
-const preloaderEl     = document.getElementById('preloader');
+const preloaderEl      = document.getElementById('preloader');
 const preloaderPercent = document.getElementById('preloaderPercent');
 const preloaderFill    = document.getElementById('preloaderFill');
+const preloaderTag     = document.getElementById('preloaderTag');
+
+const Preload = (function(){
+  const seen = new Set(), keep = [], warmQ = [];
+  let total = 0, done = 0;
+
+  function add(list, opts){            // aset yang DITUNGGU preloader
+    [].concat(list).forEach(url => {
+      if (!url || seen.has(url)) return;
+      seen.add(url); total++;
+      let ended = false;
+      const end = () => { if (!ended) { ended = true; done++; } };
+      const img = new Image();
+      if (opts && opts.noRef) img.referrerPolicy = 'no-referrer';
+      img.onload  = () => (img.decode ? img.decode().catch(() => {}) : Promise.resolve()).then(end);
+      img.onerror = end;
+      setTimeout(end, 12000);          // 1 aset macet tidak boleh menahan seluruh web
+      img.src = url;
+      keep.push(img);                  // simpan referensi supaya hasil decode tidak cepat dibuang
+    });
+  }
+  function fonts(list){
+    list.forEach(f => {
+      total++;
+      let ended = false;
+      const end = () => { if (!ended) { ended = true; done++; } };
+      (document.fonts ? document.fonts.load(f) : Promise.resolve()).then(end, end);
+      setTimeout(end, 8000);
+    });
+  }
+  function warm(list, opts){           // aset berat: dimuat di background SETELAH web terbuka
+    [].concat(list).forEach(url => { if (url && !seen.has(url)) { seen.add(url); warmQ.push([url, opts]); } });
+  }
+  function runWarm(){
+    let active = 0;
+    const next = () => {
+      while (active < 2 && warmQ.length) {
+        const [url, opts] = warmQ.shift();
+        const img = new Image();
+        if (opts && opts.noRef) img.referrerPolicy = 'no-referrer';
+        active++;
+        img.onload = img.onerror = () => { active--; setTimeout(next, 60); };
+        img.src = url;
+        keep.push(img);
+      }
+    };
+    if (window.requestIdleCallback) requestIdleCallback(next, { timeout: 1500 }); else setTimeout(next, 300);
+  }
+  return { add, fonts, warm, runWarm, get total(){ return total; }, get done(){ return done; } };
+})();
+
+// aset yang ditunggu: semua gambar tampilan + logo brand + background kategori
+Preload.add([
+  PAGE1_BG_IMG, PAGE1_OVERLAY_IMG, START_BTN_DEFAULT_IMG, START_BTN_HOVER_IMG,
+  PROFILE1.bg, PROFILE1.overlay, PROFILE1.overlay2, PROFILE1_TAP_BTN_IMG, PROFILE1_TRANSITION_GIF,
+  PROFILE2.bg, PROFILE2.overlay, PROFILE2.overlay2,
+  ...CONTACT_LINKS.map(c => c.icon), CONTACT_TOGGLE_IMG,
+  CLOSING1_BTN_IMG, CLOSING1_REVEAL_IMG, CHOOSE_LEFT_IMG, CHOOSE_RIGHT_IMG, BACK_ICON,
+  ...BRAND_LOGOS.map(b => b.file),
+  ...Object.values(DESIGN_ARCHIVE_CATEGORIES).map(c => c.bg)
+]);
+Preload.fonts(['400 1em "Cal Sans"', '800 1em "Cal Sans"', '500 1em Montserrat', '700 1em Montserrat',
+               '800 1em Montserrat', '400 1em Inter', '600 1em "Space Grotesk"', '400 1em "Space Mono"']);
+// gambar halaman popup (Design Archive / How I Work): dimuat di background setelah web terbuka
+Preload.warm([
+  ...Object.values(DESIGN_ARCHIVE_CATEGORIES).flatMap(c => c.pages.map(p => p.bg)),
+  ...Object.values(CLOSING1_LINE_PAGES).flatMap(a => a.map(p => p.bg))
+]);
 
 (function runPreloader(){
-  let progress = 0;
-  const target = { value: 0 };
-  let finished = false;
+  const t0 = performance.now();
+  let shown = 0, finished = false;
 
-  function setProgress(p){
-    target.value = Math.max(target.value, Math.min(p, 100));
-  }
-
-  // anggap bg + overlay halaman 1 + 3 profile bg sebagai aset utama yang ditunggu
-  const assetsToTrack = [PAGE1_BG_IMG, PAGE1_OVERLAY_IMG, PROFILE_SLIDES[0].overlay, PROFILE_SLIDES[0].overlay2, PROFILE1_TAP_BTN_IMG, PROFILE1_TRANSITION_GIF, HISTORY_IMG_BASE, HISTORY_IMG_LAPTOP, HISTORY_IMG_CAMERA, HISTORY_IMG_BOOK, ...PROFILE_SLIDES.map(s => s.bg)].filter(Boolean);
-  let loaded = 0;
-  const totalAssets = Math.max(assetsToTrack.length, 1);
-
-  assetsToTrack.forEach(src => {
-    const img = new Image();
-    img.onload = img.onerror = () => {
-      loaded++;
-      setProgress((loaded / totalAssets) * 90);
-    };
-    img.src = src;
-  });
-
-  // failsafe: paksa selesai maksimal 2.4s supaya tidak stuck kalau ada aset gagal load
-  const forceDone = setTimeout(() => setProgress(100), 2400);
-
-  const tick = () => {
-    progress += (target.value - progress) * 0.18;
-    if (target.value >= 100 && progress > 99) progress = 100;
-    preloaderPercent.textContent = Math.round(progress);
-    preloaderFill.style.width = progress + '%';
-
-    if (progress >= 100 && !finished) {
-      finished = true;
-      clearTimeout(forceDone);
-      setTimeout(() => {
+  const finish = () => {
+    Promise.resolve(document.fonts && document.fonts.ready).catch(() => {}).then(() => {
+      requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => {
         preloaderEl.classList.add('is-done');
-      }, 250);
-      return;
-    }
+        document.documentElement.classList.add('loaded');
+        Preload.runWarm();
+        setTimeout(() => preloaderEl.remove(), 1400);   // lepas layer layar penuh dari DOM
+      }, 350)));
+    });
+  };
+
+  const tick = (now) => {
+    const el = now - t0;
+    const assets = Preload.total ? Preload.done / Preload.total : 0;
+    const allDone = Preload.total > 0 && Preload.done >= Preload.total;
+    const ready = (allDone && el >= PRELOADER_MIN_MS) || el >= PRELOADER_MAX_MS;
+    // angka tidak boleh lebih cepat dari waktu minimal & progress aset (maks 96% sampai benar-benar siap)
+    const target = ready ? 100 : Math.min(assets, el / PRELOADER_MIN_MS) * 96;
+    shown += (target - shown) * 0.07;
+    if (ready && shown > 99.4) shown = 100;
+    preloaderPercent.textContent = Math.round(shown);
+    preloaderFill.style.width = shown + '%';
+    if (preloaderTag) preloaderTag.textContent = shown >= 100 ? 'SIAP' : `MEMUAT PORTFOLIO  ${Preload.done}/${Preload.total}`;
+    if (shown >= 100 && !finished) { finished = true; finish(); return; }
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
-
-  setTimeout(() => setProgress(100), 2600);
 })();
 
 /* =====================================================================
@@ -407,16 +461,13 @@ if (startBtnDefaultEl) startBtnDefaultEl.src = START_BTN_DEFAULT_IMG;
 const startBtnHoverEl = document.getElementById('startBtnHoverImg');
 if (startBtnHoverEl) startBtnHoverEl.src = START_BTN_HOVER_IMG;
 
-document.getElementById('circleImg').src = CIRCLE_BTN_IMG;
-document.getElementById('circlePopupImg').src = CIRCLE_POPUP_IMG;
-
 // PROFIL 1 (slide0) — tumpukan gambar 1 & 2 + gambar 3 (reveal saat diklik)
 const profileStackImg1El = document.getElementById('profileStackImg1');
 const profileStackImg2El = document.getElementById('profileStackImg2');
 const profileStackImg3El = document.getElementById('profileStackImg3');
-if (profileStackImg1El) profileStackImg1El.src = PROFILE_SLIDES[0].bg;
-if (profileStackImg2El) profileStackImg2El.src = PROFILE_SLIDES[0].overlay;
-if (profileStackImg3El) profileStackImg3El.src = PROFILE_SLIDES[0].overlay2;
+if (profileStackImg1El) profileStackImg1El.src = PROFILE1.bg;
+if (profileStackImg2El) profileStackImg2El.src = PROFILE1.overlay;
+if (profileStackImg3El) profileStackImg3El.src = PROFILE1.overlay2;
 
 const profileTapBtnImgEl = document.getElementById('profileTapBtnImg');
 if (profileTapBtnImgEl) profileTapBtnImgEl.src = PROFILE1_TAP_BTN_IMG;
@@ -424,26 +475,17 @@ if (profileTapBtnImgEl) profileTapBtnImgEl.src = PROFILE1_TAP_BTN_IMG;
 const profileGifTransitionEl = document.getElementById('profileGifTransition');
 if (profileGifTransitionEl) profileGifTransitionEl.src = PROFILE1_TRANSITION_GIF;
 
-const historyImgBaseEl   = document.getElementById('historyImgBase');
-const historyImgLaptopEl = document.getElementById('historyImgLaptop');
-const historyImgCameraEl = document.getElementById('historyImgCamera');
-const historyImgBookEl   = document.getElementById('historyImgBook');
-if (historyImgBaseEl)   historyImgBaseEl.src   = HISTORY_IMG_BASE;
-if (historyImgLaptopEl) historyImgLaptopEl.src = HISTORY_IMG_LAPTOP;
-if (historyImgCameraEl) historyImgCameraEl.src = HISTORY_IMG_CAMERA;
-if (historyImgBookEl)   historyImgBookEl.src   = HISTORY_IMG_BOOK;
-
-// Profil 2 (& slide lain yang masih pakai .profile-bg/.profile-overlay/.profile-overlay-alt)
-document.querySelectorAll('.profile-slide').forEach((el, i) => {
-  if (i === 0) return; // slide0 sudah ditangani terpisah di atas
-  if (i >= PROFILE_SLIDES.length) return;
+// Profil 2 (halaman statistik)
+(function(){
+  const el = document.getElementById('slide2');
+  if (!el) return;
   const bgEl = el.querySelector('.profile-bg');
   const ovEl = el.querySelector('.profile-overlay');
   const ovAltEl = el.querySelector('.profile-overlay-alt');
-  if (bgEl) bgEl.style.backgroundImage = `url('${PROFILE_SLIDES[i].bg}')`;
-  if (ovEl) ovEl.src = PROFILE_SLIDES[i].overlay;
-  if (ovAltEl) ovAltEl.src = PROFILE_SLIDES[i].overlay2 || '';
-});
+  if (bgEl) bgEl.style.backgroundImage = `url('${PROFILE2.bg}')`;
+  if (ovEl) ovEl.src = PROFILE2.overlay;
+  if (ovAltEl && PROFILE2.overlay2) ovAltEl.src = PROFILE2.overlay2;
+})();
 
 document.querySelectorAll('.contact-popup').forEach(popup => {
   popup.querySelectorAll('.contact-icon-btn').forEach((a, i) => {
@@ -472,9 +514,8 @@ document.querySelectorAll('.back-btn img').forEach(img => img.src = BACK_ICON);
 
 /* =====================================================================
   3b) HALAMAN 1 — OVERLAY BULATAN NOISE MENGIKUTI KURSOR
-  (mirip mekanisme profile-overlay-alt di Profil 1, tapi TANPA efek 3D/
-  tilt — cuma posisi bulatan yang menyusul kursor dengan lag halus,
-  tepinya kasar/noise lewat <mask id="cursorNoiseMask"> di HTML)
+  (tanpa efek 3D; loop animasi hanya jalan saat kursor bergerak dan
+  berhenti otomatis kalau sudah menyusul — dulu jalan terus tiap frame)
 ===================================================================== */
 (function(){
   const page1El = document.getElementById('page1');
@@ -484,18 +525,27 @@ document.querySelectorAll('.back-btn img').forEach(img => img.src = BACK_ICON);
 
   maskCircle.setAttribute('r', CURSOR_SPOT_RADIUS);
 
-  let targetX = 0, targetY = 0;
-  let curX = 0, curY = 0;
-  let primed = false;
+  let targetX = 0, targetY = 0, curX = 0, curY = 0, primed = false, raf = 0;
 
+  function paint(){
+    maskCircle.setAttribute('cx', curX.toFixed(1));
+    maskCircle.setAttribute('cy', curY.toFixed(1));
+  }
   function setCenter(){
     const rect = page1El.getBoundingClientRect();
-    targetX = rect.width / 2;
-    targetY = rect.height / 2;
-    curX = targetX; curY = targetY;
+    targetX = curX = rect.width / 2;
+    targetY = curY = rect.height / 2;
+    paint();
   }
   setCenter();
   window.addEventListener('resize', setCenter);
+
+  function frame(){
+    curX += (targetX - curX) * 0.16;
+    curY += (targetY - curY) * 0.16;
+    paint();
+    raf = (Math.abs(targetX - curX) > 0.2 || Math.abs(targetY - curY) > 0.2) ? requestAnimationFrame(frame) : 0;
+  }
 
   page1El.addEventListener('mousemove', (e) => {
     const rect = page1El.getBoundingClientRect();
@@ -503,40 +553,37 @@ document.querySelectorAll('.back-btn img').forEach(img => img.src = BACK_ICON);
     targetY = e.clientY - rect.top;
     if (!primed) { curX = targetX; curY = targetY; primed = true; }
     page1El.classList.add('overlay-ready');
-  });
+    if (!raf) raf = requestAnimationFrame(frame);
+  }, { passive: true });
   page1El.addEventListener('mouseenter', () => page1El.classList.add('overlay-ready'));
-
-  (function noiseSpotLoop(){
-    curX += (targetX - curX) * 0.16;
-    curY += (targetY - curY) * 0.16;
-    maskCircle.setAttribute('cx', curX);
-    maskCircle.setAttribute('cy', curY);
-    requestAnimationFrame(noiseSpotLoop);
-  })();
 })();
 
 /* =====================================================================
-  4) CUSTOM CURSOR
+  4) CUSTOM CURSOR (loop berhenti saat kursor diam)
 ===================================================================== */
 
 const cursorDot  = document.getElementById('cursorDot');
 const cursorRing = document.getElementById('cursorRing');
 const cursorLabel = document.getElementById('cursorLabel');
 
-let mouseX = 0, mouseY = 0;
-let ringX = 0, ringY = 0;
+let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0, cursorPrimed = false, cursorRaf = 0;
+
+function cursorFrame(){
+  ringX += (mouseX - ringX) * 0.18;
+  ringY += (mouseY - ringY) * 0.18;
+  cursorRing.style.transform = `translate(${ringX.toFixed(1)}px, ${ringY.toFixed(1)}px) translate(-50%,-50%)`;
+  cursorRaf = (Math.abs(mouseX - ringX) > 0.1 || Math.abs(mouseY - ringY) > 0.1) ? requestAnimationFrame(cursorFrame) : 0;
+}
+function kickCursor(){
+  if (!cursorPrimed) { ringX = mouseX; ringY = mouseY; cursorPrimed = true; }
+  if (!cursorRaf) cursorRaf = requestAnimationFrame(cursorFrame);
+}
 
 window.addEventListener('mousemove', (e) => {
   mouseX = e.clientX; mouseY = e.clientY;
   cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%,-50%)`;
-});
-
-(function cursorLoop(){
-  ringX += (mouseX - ringX) * 0.16;
-  ringY += (mouseY - ringY) * 0.16;
-  cursorRing.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%,-50%)`;
-  requestAnimationFrame(cursorLoop);
-})();
+  kickCursor();
+}, { passive: true });
 
 document.querySelectorAll('[data-cursor]').forEach(el => {
   el.addEventListener('mouseenter', () => {
@@ -565,16 +612,6 @@ document.querySelectorAll('[data-magnetic]').forEach(el => {
     el.style.transform = 'translate(0,0)';
   });
 });
-
-/* =====================================================================
-  6) FILM GRAIN FLICKER
-===================================================================== */
-
-const grainTurb = document.getElementById('grainTurb');
-setInterval(() => {
-  const seed = Math.floor(Math.random() * 100);
-  grainTurb.setAttribute('seed', seed);
-}, 120);
 
 /* =====================================================================
   7) TRANSISI PIXEL/MOSAIC
@@ -664,26 +701,18 @@ openBtn.addEventListener('click', () => {
 });
 
 /* =====================================================================
-  8) TOMBOL BULAT RAHASIA -> POPUP PNG
+  8) POPUP — helper tutup + kunci scroll halaman utama selagi popup/subpage terbuka
 ===================================================================== */
 
-const hiddenCircleBtn    = document.getElementById('hiddenCircleBtn');
-const circlePopupOverlay = document.getElementById('circlePopupOverlay');
-const closeCirclePopup   = document.getElementById('closeCirclePopup');
-
-hiddenCircleBtn.addEventListener('click', () => {
-  circlePopupOverlay.classList.remove('hidden');
-  requestAnimationFrame(() => circlePopupOverlay.classList.add('visible'));
-});
-closeCirclePopup.addEventListener('click', () => closePopupOverlay(circlePopupOverlay));
-circlePopupOverlay.addEventListener('click', (e) => {
-  if (e.target === circlePopupOverlay) closePopupOverlay(circlePopupOverlay);
-});
+// kunci scroll halaman utama selama ada subpage/popup yang tampil
+function syncScrollLock() {
+  const open = document.querySelector('.subpage:not(.hidden), .popup-overlay:not(.hidden)');
+  htmlEl.classList.toggle('modal-scroll-lock', !!open);
+}
 
 function closePopupOverlay(el) {
   el.classList.remove('visible');
-  setTimeout(() => el.classList.add('hidden'), 400);
-  if (el === brandModal || el === experienceModal || el === servicesModal) document.body.classList.remove('modal-scroll-lock');
+  setTimeout(() => { el.classList.add('hidden'); syncScrollLock(); }, 400);
 }
 
 /* =====================================================================
@@ -699,31 +728,102 @@ const profileObserver = new IntersectionObserver((entries) => {
 document.querySelectorAll('.profile-slide').forEach(el => profileObserver.observe(el));
 
 /* =====================================================================
-  9b) SPOTLIGHT OVERLAY 2 — bulatan "cairan" tepi tegas ikut kursor di profil 1 & 2
+  9a) PROFIL 2 — TEKS STATISTIK: angka naik + cerah di sekitar kursor
+===================================================================== */
+(function(){
+  const slide = document.getElementById('slide2');
+  const box = document.getElementById('profileStats');
+  if (!slide || !box || !PROFILE2_STATS.length) return;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 1) isi 2 lapis (redup & cerah) dengan teks yang sama persis
+  const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const html = PROFILE2_STATS.map((it, i) => `
+    <div class="profile-stat" style="--x:${it.x}">
+      <div class="profile-stat-num" data-i="${i}">${it.prefix || ''}0${it.suffix || ''}</div>
+      <div class="profile-stat-label">${esc(it.label)}</div>
+      <div class="profile-stat-rule"></div>
+      <p class="profile-stat-desc">${esc(it.desc).replace(/\n/g, '<br>')}</p>
+    </div>`).join('');
+  box.querySelectorAll('.profile-stats-layer').forEach(l => { l.innerHTML = html; });
+
+  // 2) angka naik (kedua lapis dianimasikan bersamaan)
+  const nums = [...box.querySelectorAll('.profile-stat-num')];
+  const paint = (el, k) => {
+    const it = PROFILE2_STATS[el.dataset.i];
+    el.textContent = (it.prefix || '') + Math.round(it.value * k) + (it.suffix || '');
+  };
+  const setAll = (k) => nums.forEach(el => paint(el, k));
+  const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+  let raf = null;
+
+  const run = () => {
+    const t0 = performance.now();
+    const tick = (now) => {
+      let done = true;
+      nums.forEach(el => {
+        const t = Math.min(1, Math.max(0, (now - t0 - el.dataset.i * PROFILE2_STAGGER_MS) / PROFILE2_COUNT_MS));
+        paint(el, easeOut(t));
+        if (t < 1) done = false;
+      });
+      raf = done ? null : requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  };
+
+  new IntersectionObserver(([e]) => {
+    cancelAnimationFrame(raf);
+    if (!e.isIntersecting) { setAll(0); return; }   // keluar layar -> reset, biar bisa naik lagi
+    if (reduceMotion) { setAll(1); return; }
+    setAll(0);
+    run();
+  }, { threshold: 0.5 }).observe(slide);
+
+  // 3) bulatan cerah mengikuti kursor (menyusul dengan lag halus)
+  let tx = 0, ty = 0, cx = 0, cy = 0, primed = false, spotRaf = null;
+  const spotLoop = () => {
+    cx += (tx - cx) * 0.16;
+    cy += (ty - cy) * 0.16;
+    box.style.setProperty('--mx', cx.toFixed(1) + 'px');
+    box.style.setProperty('--my', cy.toFixed(1) + 'px');
+    spotRaf = (Math.abs(tx - cx) > 0.3 || Math.abs(ty - cy) > 0.3) ? requestAnimationFrame(spotLoop) : null;
+  };
+  slide.addEventListener('mousemove', (e) => {
+    const r = box.getBoundingClientRect();
+    tx = e.clientX - r.left;
+    ty = e.clientY - r.top;
+    if (!primed) { cx = tx; cy = ty; primed = true; }  // begitu masuk langsung pas, tidak "berenang"
+    box.classList.add('is-near');
+    if (!spotRaf) spotRaf = requestAnimationFrame(spotLoop);
+  });
+  slide.addEventListener('mouseleave', () => { primed = false; box.classList.remove('is-near'); });
+})();
+
+/* =====================================================================
+  9b) SPOTLIGHT OVERLAY 2 — bulatan lembut ikut kursor di profil 2
+  (loop hanya jalan saat kursor bergerak)
 ===================================================================== */
 document.querySelectorAll('.profile-slide').forEach(slide => {
   const altImg = slide.querySelector('.profile-overlay-alt');
-  if (!altImg) return; // slide1 (desk) tidak punya overlay ke-2, aman dilewati
+  if (!altImg) return;
 
-  let targetX = 50, targetY = 50; // posisi kursor sebenarnya (dalam %)
-  let curX = 50, curY = 50;       // posisi yang dipakai buat render (nyusul dgn lag halus)
-  let primed = false;
+  let tx = 50, ty = 50, cx = 50, cy = 50, primed = false, raf = 0;
+  const frame = () => {
+    cx += (tx - cx) * 0.16;
+    cy += (ty - cy) * 0.16;
+    altImg.style.setProperty('--mx', cx.toFixed(2) + '%');
+    altImg.style.setProperty('--my', cy.toFixed(2) + '%');
+    raf = (Math.abs(tx - cx) > 0.02 || Math.abs(ty - cy) > 0.02) ? requestAnimationFrame(frame) : 0;
+  };
 
   slide.addEventListener('mousemove', (e) => {
     const rect = slide.getBoundingClientRect();
-    targetX = ((e.clientX - rect.left) / rect.width) * 100;
-    targetY = ((e.clientY - rect.top) / rect.height) * 100;
-    if (!primed) { curX = targetX; curY = targetY; primed = true; } // biar begitu masuk langsung pas, tidak "berenang" dari titik lama
-  });
+    tx = ((e.clientX - rect.left) / rect.width) * 100;
+    ty = ((e.clientY - rect.top) / rect.height) * 100;
+    if (!primed) { cx = tx; cy = ty; primed = true; }
+    if (!raf) raf = requestAnimationFrame(frame);
+  }, { passive: true });
   slide.addEventListener('mouseleave', () => { primed = false; });
-
-  (function liquidLoop(){
-    curX += (targetX - curX) * 0.16;
-    curY += (targetY - curY) * 0.16;
-    altImg.style.setProperty('--mx', curX + '%');
-    altImg.style.setProperty('--my', curY + '%');
-    requestAnimationFrame(liquidLoop);
-  })();
 });
 
 /* =====================================================================
@@ -772,9 +872,11 @@ document.querySelectorAll('.profile-slide').forEach(slide => {
     const py = (e.clientY - rect.top) / rect.height - 0.5;
     floatTargetX = px * FLOAT_RANGE * 2;
     floatTargetY = py * FLOAT_RANGE * 2;
-  });
+    kickFloat();
+  }, { passive: true });
   slide0.addEventListener('mouseleave', () => {
     floatTargetX = 0; floatTargetY = 0;
+    kickFloat();
   });
 
   function applyTilt(el, depth){
@@ -788,16 +890,21 @@ document.querySelectorAll('.profile-slide').forEach(slide => {
     el.style.transform = `perspective(1000px) scale(${HOVER_SCALE}) translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg)`;
   }
 
-  (function floatLoop(){
+  // loop hanya jalan selama gambar masih bergerak, lalu berhenti sendiri
+  let floatRaf = 0;
+  function floatFrame(){
     floatCurX += (floatTargetX - floatCurX) * 0.08;
     floatCurY += (floatTargetY - floatCurY) * 0.08;
+    const moving = Math.abs(floatTargetX - floatCurX) > 0.01 || Math.abs(floatTargetY - floatCurY) > 0.01;
+    if (!moving) { floatCurX = floatTargetX; floatCurY = floatTargetY; }
     if (floatActive) {
       applyTilt(img1, DEPTH_1);
       applyTilt(img2, DEPTH_2);
       applyTilt(img3, DEPTH_3);
     }
-    requestAnimationFrame(floatLoop);
-  })();
+    floatRaf = moving ? requestAnimationFrame(floatFrame) : 0;
+  }
+  function kickFloat(){ if (!floatRaf) floatRaf = requestAnimationFrame(floatFrame); }
 
   // --- Klik tombol "tap to know me" -> gif transisi main sebentar ->
   //     gambar 3 (teks) muncul & ikut parallax bareng gambar 1 & 2 ---
@@ -840,7 +947,7 @@ const dotButtons = document.querySelectorAll('#scrollDots button');
 const dotSections = ['slide0','slide1','slide2','page4'].map(id => document.getElementById(id));
 
 dotButtons.forEach((btn, i) => {
-  btn.addEventListener('click', () => dotSections[i].scrollIntoView({ behavior:'smooth' }));
+  btn.addEventListener('click', () => goToSection(dotSections[i]));
 });
 
 const dotsObserver = new IntersectionObserver((entries) => {
@@ -854,6 +961,113 @@ const dotsObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.6 });
 
 dotSections.forEach(sec => sec && dotsObserver.observe(sec));
+
+/* =====================================================================
+  10b) SCROLL ANTAR HALAMAN — 1 gulir = 1 halaman, dianimasikan JS (easing halus)
+  Halaman: Profil 1 -> Archive (School/Experience/...) -> Profil 2 -> Pilih Arsip -> Closing.
+  - Desktop: roda mouse / trackpad / keyboard dipandu animasi easing (PAGE_SCROLL_MS).
+  - Kotak yang punya scroll sendiri (daftar Experience, popup) tetap discroll normal dulu;
+    baru kalau sudah mentok & digulir lagi, pindah halaman.
+  - HP / layar sentuh: scroll native + snap per halaman (lihat style.css).
+===================================================================== */
+const pageSections = ['slide0','slide1','slide2','page4','closing1','closing2']
+  .map(id => document.getElementById(id)).filter(Boolean);
+const scroller = document.scrollingElement || document.documentElement;
+const reduceMotionPaging = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const easeInOutCubic = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+let pagingBusy = false, pagingRaf = 0, lockUntil = 0, lastWheelT = 0, lastWheelAbs = 0, lastInnerT = 0;
+
+const sectionTop = (el) => el.getBoundingClientRect().top + scroller.scrollTop;
+function nearestSection(){
+  const y = scroller.scrollTop;
+  let best = 0, bd = Infinity;
+  pageSections.forEach((s, i) => { const d = Math.abs(sectionTop(s) - y); if (d < bd) { bd = d; best = i; } });
+  return best;
+}
+
+function scrollToY(y, dur){
+  cancelAnimationFrame(pagingRaf);
+  const from = scroller.scrollTop, dist = y - from;
+  if (Math.abs(dist) < 1 || reduceMotionPaging || dur <= 0) { scroller.scrollTop = y; return; }
+  pagingBusy = true;
+  htmlEl.classList.add('no-snap');
+  const t0 = performance.now();
+  const step = (now) => {
+    const t = Math.min(1, (now - t0) / dur);
+    scroller.scrollTop = from + dist * easeInOutCubic(t);
+    if (t < 1) pagingRaf = requestAnimationFrame(step);
+    else { pagingBusy = false; lockUntil = performance.now() + 220; htmlEl.classList.remove('no-snap'); }
+  };
+  pagingRaf = requestAnimationFrame(step);
+}
+
+function goToIndex(i){
+  i = Math.max(0, Math.min(pageSections.length - 1, i));
+  const dist = Math.abs(i - nearestSection());
+  scrollToY(sectionTop(pageSections[i]), Math.min(1800, PAGE_SCROLL_MS + (dist - 1) * 260));
+}
+function goToSection(el){ const i = pageSections.indexOf(el); if (i > -1) goToIndex(i); }
+
+// apakah ada kotak scroll (overflow auto) di bawah kursor yang masih bisa digulir ke arah ini?
+function innerScrollState(target, dy){
+  for (let el = target; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+    if (!(el instanceof Element)) break;
+    const oy = getComputedStyle(el).overflowY;
+    if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1) {
+      if (dy > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1) return 'scroll';
+      if (dy < 0 && el.scrollTop > 0) return 'scroll';
+      return 'edge';
+    }
+  }
+  return 'none';
+}
+
+window.addEventListener('wheel', (e) => {
+  if (!started || e.ctrlKey) return;                          // sebelum START: sudah diblok di atas
+  if (htmlEl.classList.contains('modal-scroll-lock')) return; // popup/subpage terbuka: biarkan scroll internalnya
+  let dy = e.deltaY; if (e.deltaMode === 1) dy *= 32; else if (e.deltaMode === 2) dy *= innerHeight;
+  if (Math.abs(e.deltaX) > Math.abs(dy) || Math.abs(dy) < 4) return;
+
+  const now = performance.now();
+  const inner = innerScrollState(e.target, dy);
+  if (inner === 'scroll') { lastInnerT = now; return; }       // biar kotak itu discroll dulu
+  e.preventDefault();                                          // sisanya kita yang atur
+  if (inner === 'edge' && now - lastInnerT < 450) return;     // baru mentok: tunggu gulir baru
+
+  const abs = Math.abs(dy);
+  const fresh = now - lastWheelT > 140 || abs > lastWheelAbs * 1.8;   // gulir BARU, bukan sisa inersia trackpad
+  lastWheelT = now; lastWheelAbs = abs;
+  if (pagingBusy || now < lockUntil || !fresh) return;
+  goToIndex(nearestSection() + (dy > 0 ? 1 : -1));
+}, { passive: false });
+
+window.addEventListener('keydown', (e) => {
+  if (!started || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+  if (htmlEl.classList.contains('modal-scroll-lock')) return;
+  const onBody = !document.activeElement || document.activeElement === document.body;
+  const k = e.key;
+  let to = null;
+  if (k === 'ArrowDown' || k === 'PageDown' || (k === ' ' && onBody && !e.shiftKey)) to = nearestSection() + 1;
+  else if (k === 'ArrowUp' || k === 'PageUp' || (k === ' ' && onBody && e.shiftKey)) to = nearestSection() - 1;
+  else if (k === 'Home') to = 0;
+  else if (k === 'End') to = pageSections.length - 1;
+  if (to === null || document.activeElement && /^(INPUT|TEXTAREA|SELECT|IFRAME)$/.test(document.activeElement.tagName)) return;
+  if (innerScrollState(document.activeElement, k === 'ArrowUp' || k === 'PageUp' ? -1 : 1) === 'scroll') return;
+  e.preventDefault();
+  if (!pagingBusy) goToIndex(to);
+});
+
+// ukuran layar berubah -> rapikan lagi ke halaman terdekat
+let pagingResizeT = 0;
+window.addEventListener('resize', () => {
+  clearTimeout(pagingResizeT);
+  pagingResizeT = setTimeout(() => { if (started && !pagingBusy) scroller.scrollTop = sectionTop(pageSections[nearestSection()]); }, 200);
+});
+
+// animasi melayang di Pilih Arsip hanya jalan saat halamannya terlihat
+const page4El = document.getElementById('page4');
+if (page4El) new IntersectionObserver(([e]) => page4El.classList.toggle('on-screen', e.isIntersecting), { threshold: 0.05 }).observe(page4El);
 
 /* =====================================================================
   11) KINETIC TEXT (closing headline) — split per baris + mask reveal
@@ -968,13 +1182,14 @@ const rightSubpage = document.getElementById('rightSubpage');
 
 function openSubpage(el) {
   el.classList.remove('hidden');
+  syncScrollLock();
   requestAnimationFrame(() => el.classList.add('visible'));
   if (el === rightSubpage) contentArchive.init();
 }
 function closeSubpage(el) {
   if (el === rightSubpage) contentArchive.closeModal(); // hentikan video kalau pemutar masih terbuka
   el.classList.remove('visible');
-  setTimeout(() => { el.classList.add('hidden'); }, 800);
+  setTimeout(() => { el.classList.add('hidden'); syncScrollLock(); }, 800);
 }
 
 document.querySelectorAll('.subpage .back-btn').forEach(btn => {
@@ -1048,7 +1263,7 @@ const contentArchive = (function(){
         hero = byId('caHero'), dock = byId('caDock'), modal = byId('caModal'),
         phone = byId('caPhone'), infoEl = byId('caMi');
   if (!home || !grid || !menu || !hero || !dock || !modal || !phone || !infoEl) {
-    return { init(){}, closeModal(){}, isModalOpen(){ return false; } };
+    return { init(){}, closeModal(){}, isModalOpen(){ return false; }, posterUrls(){ return []; } };
   }
 
   let ci = 0, mi = 0;
@@ -1217,8 +1432,14 @@ const contentArchive = (function(){
   }
 
   setActive();
-  return { init, closeModal: closeM, isModalOpen: () => modal.classList.contains('open') };
+  const posterUrls = (i) => (D[i] ? D[i][1] : []).map(poster).filter(Boolean);
+  return { init, closeModal: closeM, isModalOpen: () => modal.classList.contains('open'), posterUrls };
 })();
+
+/* pramuat poster Content Archive: kategori pertama ditunggu preloader,
+   kategori lain dimuat di background setelah web terbuka */
+Preload.add(contentArchive.posterUrls(0), { noRef: true });
+Preload.warm(D.slice(1).flatMap((_, k) => contentArchive.posterUrls(k + 1)), { noRef: true });
 
 /* =====================================================================
   15) MODAL ISI BRAND — jumlah halaman dinamis (1 buat Content Archive,
@@ -1230,7 +1451,7 @@ const closeBrandModalBtn = document.getElementById('closeBrandModal');
 
 function openBrandModal(pages) {
   brandModalTrack.innerHTML = '';
-  (pages || []).forEach(data => {
+  (pages || []).filter(d => d && d.bg).forEach(data => {
     const pageEl = document.createElement('div');
     pageEl.className = 'brand-modal-page';
 
@@ -1254,7 +1475,7 @@ function openBrandModal(pages) {
   brandModalTrack.scrollTop = 0;
   brandModal.classList.remove('hidden');
   requestAnimationFrame(() => brandModal.classList.add('visible'));
-  document.body.classList.add('modal-scroll-lock'); // kunci scroll halaman utama selagi popup terbuka
+  syncScrollLock(); // kunci scroll halaman utama selagi popup terbuka
 }
 
 closeBrandModalBtn.addEventListener('click', () => closePopupOverlay(brandModal));
@@ -1313,7 +1534,7 @@ function openExperienceModal() {
   experienceModal.classList.remove('hidden');
   experienceModalTrack.scrollTop = 0;            // harus setelah 'hidden' dilepas
   requestAnimationFrame(() => experienceModal.classList.add('visible'));
-  document.body.classList.add('modal-scroll-lock');
+  syncScrollLock();
   brandsRevealTimer = setTimeout(() => brandsGrid.classList.add('is-visible'), 250);
 }
 
@@ -1360,7 +1581,7 @@ function openServicesModal() {
   loadServicesPage();
   servicesModal.classList.remove('hidden');
   requestAnimationFrame(() => servicesModal.classList.add('visible'));
-  document.body.classList.add('modal-scroll-lock');
+  syncScrollLock();
   try { servicesFrame.contentWindow.scrollTo(0, 0); } catch (e) {}
 }
 
@@ -1372,6 +1593,7 @@ window.addEventListener('message', (e) => {
     // iframe-nya fullscreen, jadi koordinat di dalam = koordinat di layar
     mouseX = e.data.x; mouseY = e.data.y;
     cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%,-50%)`;
+    kickCursor();
   } else if (e.data.type === 'servicesClose') {
     if (servicesModal.classList.contains('visible')) closePopupOverlay(servicesModal);
   }
@@ -1386,7 +1608,6 @@ document.addEventListener('keydown', (e) => {
   if (servicesModal.classList.contains('visible')) closePopupOverlay(servicesModal);
   else if (experienceModal.classList.contains('visible')) closePopupOverlay(experienceModal);
   else if (brandModal.classList.contains('visible')) closePopupOverlay(brandModal);
-  else if (circlePopupOverlay.classList.contains('visible')) closePopupOverlay(circlePopupOverlay);
   else if (contentArchive.isModalOpen()) contentArchive.closeModal();   // pemutar video Content Archive
   else if (leftSubpage.classList.contains('visible')) closeSubpage(leftSubpage);
   else if (rightSubpage.classList.contains('visible')) closeSubpage(rightSubpage);
@@ -1436,109 +1657,149 @@ document.querySelectorAll('.closing1-line').forEach(line => {
 });
 
 /* =====================================================================
-  17) HALAMAN 3 — FOTO LAPTOP/BUKU/KAMERA: hover ganti foto, klik buka panel
+  17) HALAMAN 2 — ARCHIVE (School / Experience / Skills / Programs)
+  Tab bertumpuk: klik salah satu -> tab itu naik ke atas, isinya muncul.
+  Datanya: HISTORY_DATA (bagian atas file ini). Bungkus IIFE biar nama
+  variabelnya tidak bentrok dengan bagian lain.
 ===================================================================== */
 (function(){
-  const wrap = document.getElementById('historyPhotoWrap');
-  const hotspotLaptop = document.getElementById('hotspotLaptop');
-  const hotspotBook = document.getElementById('hotspotBook');
-  const hotspotCamera = document.getElementById('hotspotCamera');
-  const panelLeft = document.getElementById('panelLeft');
-  const panelLeftTitle = document.getElementById('panelLeftTitle');
-  const panelLeftBody = document.getElementById('panelLeftBody');
-  const panelLeftClose = document.getElementById('panelLeftClose');
-  const panelRight = document.getElementById('panelRight');
-  const panelRightClose = document.getElementById('panelRightClose');
-  const tabSkillsBtn = document.getElementById('tabSkillsBtn');
-  const tabSoftwareBtn = document.getElementById('tabSoftwareBtn');
-  const panelRightBodySkills = document.getElementById('panelRightBodySkills');
-  const panelRightBodySoftware = document.getElementById('panelRightBodySoftware');
-  if (!wrap || !hotspotLaptop || !hotspotBook || !hotspotCamera) return;
+  const slide = document.getElementById('slide1');
+  const archive = document.getElementById('historyArchive');
+  const view = document.getElementById('historyView');
+  const list = document.getElementById('historyList');
+  const backBtn = document.getElementById('historyBack');
+  const layers = [...document.querySelectorAll('#historyArchive .layer[data-key]')];
+  if (!slide || !archive || !view || !list || !backBtn || !layers.length) return;
 
-  // Render list sekali di awal (isinya statis, tinggal diganti dari CONFIG di atas)
-  panelRightBodySkills.innerHTML = SKILLS_LIST
-    .map(item => `<div class="history-list-item history-list-item--plain">${item}</div>`).join('');
-  panelRightBodySoftware.innerHTML = SOFTWARE_LIST
-    .map(item => `<div class="history-list-item history-list-item--plain">${item}</div>`).join('');
+  const DATA = HISTORY_DATA;
+  const root = document.documentElement;
+  let current = null, opener = null;
 
-  function renderWork(){
-    panelLeftBody.innerHTML = WORK_EXPERIENCE.map(item => `
-      <div class="history-list-item">
-        <h4>${item.role}</h4>
-        <span>${item.company}</span>
-        <p>${item.desc}</p>
-      </div>
-    `).join('');
-  }
-  function renderSchool(){
-    panelLeftBody.innerHTML = SCHOOL_HISTORY.map(item => `
-      <div class="history-list-item history-list-item--compact">
-        <h4>${item.name}</h4>
-        <span>${item.place}</span>
-      </div>
-    `).join('');
-  }
+  const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls || '', textContent: text || '' });
 
-  let activePanel = null; // null | 'laptop' | 'book' | 'camera'
-  let hoveredSpot = null;
-
-  function refreshPhoto(){
-    const key = activePanel || hoveredSpot;
-    wrap.classList.remove('show-laptop', 'show-camera', 'show-book');
-    if (key) wrap.classList.add('show-' + key);
-  }
-
-  function closeAllPanels(){
-    panelLeft.classList.remove('is-open');
-    panelRight.classList.remove('is-open');
-  }
-
-  function setRightTab(tab){
-    tabSkillsBtn.classList.toggle('is-active', tab === 'skills');
-    tabSoftwareBtn.classList.toggle('is-active', tab === 'software');
-    panelRightBodySkills.hidden = tab !== 'skills';
-    panelRightBodySoftware.hidden = tab !== 'software';
-  }
-
-  function openPanel(key){
-    if (activePanel === key) { // klik lagi -> tutup
-      activePanel = null;
-      closeAllPanels();
-      refreshPhoto();
-      return;
-    }
-    activePanel = key;
-    closeAllPanels();
-    if (key === 'laptop') {
-      panelLeftTitle.textContent = 'Pengalaman Kerja';
-      panelLeft.classList.remove('is-compact');
-      renderWork();
-      panelLeft.classList.add('is-open');
-    } else if (key === 'book') {
-      panelLeftTitle.textContent = 'Riwayat Sekolah';
-      panelLeft.classList.add('is-compact');
-      renderSchool();
-      panelLeft.classList.add('is-open');
-    } else if (key === 'camera') {
-      setRightTab('skills');
-      panelRight.classList.add('is-open');
-    }
-    refreshPhoto();
-  }
-
-  hotspotLaptop.addEventListener('click', () => openPanel('laptop'));
-  hotspotBook.addEventListener('click', () => openPanel('book'));
-  hotspotCamera.addEventListener('click', () => openPanel('camera'));
-
-  [[hotspotLaptop, 'laptop'], [hotspotBook, 'book'], [hotspotCamera, 'camera']].forEach(([el, key]) => {
-    el.addEventListener('mouseenter', () => { hoveredSpot = key; refreshPhoto(); });
-    el.addEventListener('mouseleave', () => { hoveredSpot = null; refreshPhoto(); });
+  // salinan biru dari tiap garis abu-abu; CSS cuma menampilkannya di sekitar kursor
+  layers.forEach(l => {
+    const b = el('span', 'blue');
+    b.setAttribute('aria-hidden', 'true');
+    b.append(l.querySelector('.outline').cloneNode(true));
+    l.querySelectorAll('.rule').forEach(r => b.append(r.cloneNode(true)));
+    l.querySelector('.hit').before(b);
+    l.addEventListener('click', () => openView(l.dataset.key, l));
   });
 
-  panelLeftClose.addEventListener('click', () => { activePanel = null; closeAllPanels(); refreshPhoto(); });
-  panelRightClose.addEventListener('click', () => { activePanel = null; closeAllPanels(); refreshPhoto(); });
-  tabSkillsBtn.addEventListener('click', () => setRightTab('skills'));
-  tabSoftwareBtn.addEventListener('click', () => setRightTab('software'));
+  // posisi kursor buat cahaya biru: dihitung relatif ke kotak halaman ini
+  // (bukan ke layar), jadi tetap pas walau halaman lagi ke-scroll setengah
+  let px = 0, py = 0, tick = false, moving = false, vis = false;
+  const setGlow = (x, y) => { archive.style.setProperty('--mx', x + 'px'); archive.style.setProperty('--my', y + 'px'); };
+  addEventListener('pointermove', e => {
+    if (!vis || moving || (archive.classList.contains('is-open') && !archive.classList.contains('partial')) || !archive.classList.contains('settled')) return;
+    px = e.clientX; py = e.clientY;
+    if (!tick) { tick = true; requestAnimationFrame(() => { const r = archive.getBoundingClientRect(); setGlow(px - r.left, py - r.top); tick = false; }); }
+  }, { passive: true });
+  root.addEventListener('mouseleave', () => setGlow(-9999, -9999));
+
+  function render(key) {
+    const d = DATA[key];
+    view.setAttribute('aria-label', d.title);
+    list.replaceChildren();
+    d.items.forEach((it, i) => {
+      const li = el('li');
+      li.style.setProperty('--i', i);
+      li.append(el('h2', '', it.title));
+      if (it.place) li.append(el('p', 'place', it.place));
+      if (it.note) li.append(el('p', 'note', it.note));
+      list.append(li);
+    });
+    view.querySelector('.vscroll').scrollTop = 0;
+  }
+
+  let mv = 0;
+  const pause = () => { moving = true; setGlow(-9999, -9999); clearTimeout(mv); mv = setTimeout(() => { moving = false; }, 1300); };
+
+  // taruh tab yang dibuka di atas, tab di bawahnya tetap kelihatan (didorong turun
+  // secukupnya). Experience (full:true) atau isi yang tidak muat -> buka penuh.
+  function layout(key) {
+    const i = layers.findIndex(l => l.dataset.key === key);
+    const th = layers[0].querySelector('.outline').getBoundingClientRect().height, k = th / 122;
+    const H = archive.clientHeight, S = H * 0.177, n = layers.length - 1 - i;
+    const T = list.getBoundingClientRect().bottom - view.getBoundingClientRect().top + 80 * k;   // atas tab berikutnya (relatif ke halaman ini)
+    const partial = !DATA[key].full && n > 0 && T + th + (n - 1) * S + H * 0.03 <= H;
+    view.classList.toggle('partial', partial);
+    view.style.setProperty('--vb', partial ? (H - T) + 'px' : '0px');
+    archive.classList.toggle('partial', partial);
+    archive.inert = !partial;
+    layers.forEach((l, j) => {
+      l.classList.toggle('open', j === i);
+      l.classList.toggle('sink', j !== i && (!partial || j < i));
+      if (partial && j > i) {
+        const dy = T + (j - i - 1) * S - l.offsetTop;
+        l.style.transform = `translateY(${dy}px)`;
+        l.style.setProperty('--cy', (l.offsetTop + dy) + 'px');
+      } else { l.style.removeProperty('transform'); l.style.removeProperty('--cy'); }
+    });
+  }
+
+  function openView(key, from) {
+    if (!DATA[key] || key === current) return;
+    const first = !current;
+    current = key;
+    opener = from || layers.find(l => l.dataset.key === key);
+    pause();
+    const go = () => {
+      render(key); layout(key);
+      view.inert = false;
+      view.setAttribute('aria-hidden', 'false');
+      view.classList.add('on');
+    };
+    if (first) {
+      archive.classList.add('is-open');
+      go();
+      setTimeout(() => backBtn.focus({ preventScroll: true }), 1000);
+    } else {              // pindah antar tab: teks fade out dulu, baru geser
+      view.classList.remove('on');
+      setTimeout(() => { if (current === key) go(); }, 280);
+    }
+  }
+
+  function closeView() {
+    if (!current) return;
+    current = null;
+    view.classList.remove('on');
+    view.setAttribute('aria-hidden', 'true');
+    view.inert = true;
+    archive.classList.remove('is-open', 'partial');
+    archive.inert = false;
+    pause();
+    if (opener) { opener.classList.add('leaving'); const o = opener; setTimeout(() => o.classList.remove('leaving'), 1300); }
+    layers.forEach(l => { l.classList.remove('open', 'sink'); l.style.removeProperty('transform'); l.style.removeProperty('--cy'); });
+    if (opener) opener.focus({ preventScroll: true });
+  }
+
+  let rz = 0;
+  addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (current) layout(current); }, 150); });
+  backBtn.addEventListener('click', closeView);
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || !current) return;
+    if (document.querySelector('.subpage.visible, .popup-overlay.visible')) return;   // biarkan Esc menutup popup/subpage dulu
+    closeView();
+  });
+
+  // intro: tab naik satu-satu (School dulu) — jalan sekali, begitu halaman ini terlihat
+  let introPlayed = false;
+  function playIntro() {
+    if (introPlayed) return;
+    introPlayed = true;
+    const fontsReady = Promise.race([
+      document.fonts ? document.fonts.ready : Promise.resolve(),
+      new Promise(r => setTimeout(r, 1500))
+    ]);
+    fontsReady.then(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+      archive.classList.add('in');
+      setTimeout(() => archive.classList.add('settled'), 2800);
+    })));
+  }
+  new IntersectionObserver(([e]) => { if (e.isIntersecting) playIntro(); }, { threshold: 0.5 }).observe(slide);
+  new IntersectionObserver(([e]) => { vis = e.isIntersecting; }).observe(slide);
 })();
 
 } catch (err) {

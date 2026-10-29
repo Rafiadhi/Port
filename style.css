@@ -3,9 +3,6 @@
   Font: Space Grotesk (display) + Inter (body) + Space Mono (label/cursor) 
 ===================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Cal+Sans&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -28,13 +25,12 @@ html,body{
   background:var(--black);
   color:var(--white);
   font-family: var(--body);
-  scroll-behavior:smooth;
 }
 
 /* dipasang/dilepas lewat JS pas popup brandModal (gambar panjang) buka/tutup
    -- kunci total biar scroll di dalam popup nggak pernah "nembus" ke
    halaman utama di belakangnya */
-body.modal-scroll-lock{ overflow:hidden; }
+html.modal-scroll-lock, body.modal-scroll-lock{ overflow:hidden; }
 
 img{ -webkit-user-drag:none; user-select:none; }
 
@@ -100,7 +96,7 @@ img{ -webkit-user-drag:none; user-select:none; }
   background:var(--black);
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:18px;
-  transition:transform .8s var(--ease), opacity .6s var(--ease) .2s;
+  transition:transform 1s var(--ease), opacity .6s var(--ease) .2s;
 }
 #preloader.is-done{
   transform:translateY(-100%);
@@ -232,24 +228,6 @@ html.started #page1{ display:none; }
 }
 #openPortfolioBtn:hover .start-btn-hover{ clip-path:inset(0 0 0 0); }
 
-#hiddenCircleBtn{
-  position:absolute;
-  right:6%;
-  bottom:8%;
-  width:64px;
-  height:64px;
-  border-radius:50%;
-  border:none;
-  overflow:hidden;
-  background:transparent;
-  opacity:0.06;
-  cursor:pointer;
-  transition:opacity .4s var(--ease);
-  z-index:10;
-}
-#hiddenCircleBtn:hover{ opacity:0.5; }
-#hiddenCircleBtn img{ width:100%; height:100%; object-fit:cover; }
-
 /* ============ TRANSISI PIXEL/MOSAIC ============
    Dipakai bareng buat: (1) klik START NOW -> profil 1, dan
    (2) klik kolom Graphic Designer/Content Creator -> subpage.
@@ -312,12 +290,78 @@ html.started #page1{ display:none; }
   width:100%; height:100%;
   object-fit:cover;
   object-position: var(--overlay-pos, center);
-  opacity:0;
-  transform:translateY(40px);
-  transition: opacity 1s var(--ease), transform 1s var(--ease);
-  will-change:transform;
+  /* langsung tampil: tanpa fade-in / geser naik */
 }
-.profile-slide.in-view .profile-overlay{ opacity:1; transform:translateY(0); }
+
+/* ---- TEKS STATISTIK + ANGKA NAIK (Profil 2) ----
+   Semua ukuran/posisi diukur dari gambar referensi 2560x1440, lalu dikali
+   --px (= 1 piksel gambar). Kotaknya dibuat 16:9 & ikut skala "cover" seperti
+   gambar layer 1, jadi teks selalu pas di tempat yang sama di layar apa pun.
+   Isi teks/angka: PROFILE2_STATS di script.js. */
+.profile-stats{
+  --px:calc(max(1vw, 1.77778vh) / 25.6);
+  --stats-dim:.5;                       /* kecerahan teks saat kursor jauh (0-1) */
+  position:absolute; left:50%; top:50%;
+  width:max(100vw, 177.7778vh);
+  height:max(56.25vw, 100vh);
+  transform:translate(-50%, -50%);
+  pointer-events:none;
+  color:#fff;
+  font-family:'Montserrat', sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.profile-stats-layer{ position:absolute; inset:0; }
+.profile-stats-base{ opacity:var(--stats-dim); }
+
+/* lapisan cerah: cuma kelihatan di bulatan (radius --spot-r) yang mengikuti kursor */
+.profile-stats-glow{
+  --spot-r:calc(var(--px) * 340);       /* GANTI DI SINI: radius bulatan cerah */
+  opacity:0;
+  transition:opacity .45s var(--ease);
+  -webkit-mask-image:radial-gradient(circle var(--spot-r) at var(--mx, 50%) var(--my, 50%), #000 25%, transparent 100%);
+          mask-image:radial-gradient(circle var(--spot-r) at var(--mx, 50%) var(--my, 50%), #000 25%, transparent 100%);
+}
+.profile-stats.is-near .profile-stats-glow{ opacity:1; }
+@media (hover:none){                    /* layar sentuh tidak punya kursor -> selalu cerah */
+  .profile-stats-base{ opacity:1; }
+  .profile-stats-glow{ display:none; }
+}
+
+.profile-stat{
+  position:absolute;
+  top:calc(var(--px) * 897);
+  left:calc(var(--px) * var(--x));
+}
+.profile-stat-num{
+  margin-left:-.03em;
+  font-weight:500;
+  font-size:calc(var(--px) * 282);
+  line-height:1;
+  letter-spacing:-.05em;
+  white-space:nowrap;
+}
+.profile-stat-label{
+  margin-top:calc(var(--px) * 4);
+  font-weight:400;
+  font-size:calc(var(--px) * 38);
+  line-height:1;
+  color:#fafafa;
+  white-space:nowrap;
+}
+.profile-stat-rule{
+  margin:calc(var(--px) * 20) 0 0 calc(var(--px) * 3);
+  width:calc(var(--px) * 178);
+  height:calc(var(--px) * 2);
+  background:rgba(255,255,255,.17);
+}
+.profile-stat-desc{
+  margin:calc(var(--px) * 21) 0 0 0;
+  font-weight:500;
+  font-size:calc(var(--px) * 16);
+  line-height:calc(var(--px) * 22);
+  color:rgba(254,254,254,.82);
+  white-space:nowrap;
+}
 
 /* ---- OVERLAY KE-2: muncul dalam bulatan "cairan" mengikuti kursor ----
    Jauh dari kursor / kursor belum masuk -> tetap overlay 1 (opacity 0 di sini).
@@ -334,7 +378,6 @@ html.started #page1{ display:none; }
   opacity:0;
   pointer-events:none;
   transition:opacity .45s var(--ease);
-  will-change:transform;
   --spot-r:90px;
   --spot-fade:60px;
   mask-image: radial-gradient(circle var(--spot-r) at var(--mx,50%) var(--my,50%), #000 calc(100% - var(--spot-fade)), transparent 100%);
@@ -347,8 +390,8 @@ html.started #page1{ display:none; }
    PROFIL 1 — TUMPUKAN 3 GAMBAR (background, orang, teks) + tombol PNG
    "tap to know me". Semua gambar (1, 2, 3) FULL 1 LAYAR & object-fit:cover
    supaya ukuran/rasionya sama persis satu sama lain.
-   - Ganti gambar 1 (bg) & 2 (orang): PROFILE_SLIDES[0].bg / .overlay di script.js
-   - Ganti gambar 3 (teks, PNG): PROFILE_SLIDES[0].overlay2 di script.js
+   - Ganti gambar 1 (bg) & 2 (orang): PROFILE1.bg / .overlay di script.js
+   - Ganti gambar 3 (teks, PNG): PROFILE1.overlay2 di script.js
    - Ganti PNG tombol "tap to know me": PROFILE1_TAP_BTN_IMG di script.js
      (ukuran diatur lewat --tap-btn-w di bawah — GANTI DI SINI)
    - Ganti GIF transisi & durasinya: PROFILE1_TRANSITION_GIF /
@@ -367,7 +410,6 @@ html.started #page1{ display:none; }
   /* GANTI DI SINI kalau bagian gambar yang kepotong/kelihatan "ga pas" —
      nilai default: center. Bisa diisi "center top", "50% 20%", dsb. */
   object-position: var(--stack-img-pos, center);
-  will-change:transform;
   opacity:0;
   transform:translateY(40px);
   transition:opacity 1s var(--ease), transform 1s var(--ease);
@@ -911,14 +953,6 @@ html.started #page1{ display:none; }
   text-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
-.circle-popup-inner {
-  width: 100vw; height: 100vh;
-  transform: scale(0.9) translateY(20px);
-  opacity: 0;
-  transition: transform 0.7s var(--ease), opacity 0.7s var(--ease);
-}
-.popup-overlay.visible .circle-popup-inner { transform: scale(1) translateY(0); opacity: 1; }
-.circle-popup-inner img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ============ BRAND MODAL ============ */
 /* Sebelumnya tiap gambar dipaksa pas 1 layar penuh (background-size:cover,
@@ -1084,191 +1118,124 @@ html.started #page1{ display:none; }
    Karena hampir semua ukuran di file ini pakai vw/vh/%, kontennya tetap
    otomatis memenuhi layar berapa pun ukurannya, hanya lebih rapat di layar
    sempit — bukan berubah susunan seperti sebelumnya. */
-/* ============ HALAMAN 3: RIWAYAT (foto laptop/buku/kamera) ============
-   Ganti gambar-gambarnya di script.js (cari komentar "HALAMAN 3"):
-   - HISTORY_IMG_BASE   = foto utama (laptop+buku+kamera, kondisi normal)
-   - HISTORY_IMG_LAPTOP = foto saat area laptop di-hover/diklik
-   - HISTORY_IMG_CAMERA = foto saat area kamera di-hover/diklik
-   - HISTORY_IMG_BOOK   = foto saat area buku di-hover/diklik
-   Ke-4 gambar itu HARUS ukuran/rasio sama biar tidak "loncat" — object-fit
-   di bawah sengaja pakai CONTAIN (bukan cover) supaya tidak ada yang ke-crop.
-*/
+/* ============ HALAMAN 2: ARCHIVE (School / Experience / Skills / Programs) ============
+   Semua selector di-scope ke #slide1 supaya TIDAK bentrok dengan halaman lain.
+   Isi datanya: HISTORY_DATA di script.js. 1 unit --k = 1/2560 lebar layar. */
 #slide1{
-  background:#ffffff;
-}
-.history-photo-wrap{
-  position:absolute; inset:0;
-  width:100%; height:100%;
-}
-.history-photo-img{
-  position:absolute; inset:0;
-  width:100%; height:100%;
-  object-fit:contain; /* JANGAN diubah ke "cover" -> biar tidak ke-crop */
-  opacity:0;
-  pointer-events:none;
-  /* GANTI DI SINI kalau mau dissolve-nya lebih cepat/lambat */
-  transition:opacity .6s ease;
-}
-/* Gambar dasar (laptop+buku+kamera bareng) SENGAJA TIDAK ikut fade-out lagi
-   dan TIDAK dikasih transition -> dia selalu tampil penuh opacity di lapis
-   paling bawah. Yang fade in/out cuma gambar fokus (laptop/kamera/buku) di
-   ATAS-nya. Ini yang bikin dissolve-nya halus TANPA kilatan warna background
-   #slide1 kelihatan sekilas — karena di bawahnya selalu ada gambar dasar
-   yang solid, bukan background kosong. */
-#historyImgBase{ opacity:1; z-index:1; transition:none; }
-#historyImgLaptop, #historyImgCamera, #historyImgBook{ z-index:2; }
-.history-photo-wrap.show-laptop #historyImgLaptop,
-.history-photo-wrap.show-camera #historyImgCamera,
-.history-photo-wrap.show-book   #historyImgBook{
-  opacity:1;
-}
-
-/* ---- HOTSPOT (area klik tak kasat mata di atas foto) ----
-   Angka di bawah cuma estimasi posisi laptop/buku/kamera di foto —
-   GESER/RESIZE di sini (dalam %) kalau area klik-nya belum pas nutupin
-   bendanya. left/top = pojok kiri-atas area, width/height = besarnya area. */
-.history-hotspot{
-  position:absolute;
-  z-index:5;
-  border:none;
-  background:transparent;
-  cursor:pointer;
-  padding:0;
-}
-.history-hotspot--book{   left:29%; top:8%;  width:32%; height:38%; }
-.history-hotspot--laptop{ left:23%; top:38%; width:40%; height:52%; }
-.history-hotspot--camera{ left:54%; top:16%; width:32%; height:54%; }
-
-/* ---- PANEL POPUP (kiri: Pengalaman Kerja / Riwayat Sekolah,
-        kanan: Skills & Software) ---- */
-.history-panel{
-  position:absolute;
-  top:50%;
-  width:min(320px, 30vw);
-  max-height:68%;
-  background:#000; /* GANTI DI SINI kalau mau warna panel beda dari hitam */
-  border:1px solid rgba(244,242,237,.14);
-  border-radius:0;
-  padding:24px 20px 20px;
-  z-index:20;
-  display:flex;
-  flex-direction:column;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .4s var(--ease), transform .4s var(--ease);
-}
-.history-panel--left{
-  left:4%;
-  transform:translateY(-50%) translateX(-24px);
-}
-.history-panel--right{
-  right:4%;
-  transform:translateY(-50%) translateX(24px);
-}
-.history-panel.is-open{
-  opacity:1;
-  pointer-events:auto;
-  transform:translateY(-50%) translateX(0);
-}
-/* Versi "compact" dipakai buat Riwayat Sekolah — cuma 4 baris, gak perlu
-   setinggi panel Pengalaman Kerja & gak perlu discroll. */
-.history-panel--left.is-compact{ max-height:none; }
-.history-panel--left.is-compact .history-panel-body{ max-height:none; overflow:visible; }
-
-.history-panel-close{
-  position:absolute; top:14px; right:14px;
-  width:26px; height:26px;
-  border:none; border-radius:50%;
-  background:rgba(244,242,237,.08);
+  --k:min(calc(100vw / 2560),calc(100vh / 1020));
+  --gap:calc(var(--k) * 158);
+  --line:#b0b0b0;--blue-line:#4a6dff;--text:#a9a9a9;--white:#fff;--mute:#8f8f8f;
+  --th:calc(var(--k) * 122);--tw:calc(var(--k) * 1065);--sw:max(1.5px,calc(var(--k) * 4.5));
+  --io:cubic-bezier(.76,0,.2,1);--out:cubic-bezier(.16,1,.3,1);
+  --font:"Cal Sans","Call Sans","Montserrat",system-ui,sans-serif;--body:"Montserrat",system-ui,sans-serif;
+  --mx:-9999px;--my:-9999px;
+  --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --tabmask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1065 122'%3E%3Cpath d='M0 122 L62 17 Q71 2 94 2 L971 2 Q994 2 1003 17 L1065 122Z'/%3E%3C/svg%3E");
+  color-scheme:dark;
+  isolation:isolate;
+  background:linear-gradient(#000,#0c0c0d);
   color:var(--white);
-  font-size:17px; line-height:1;
-  cursor:pointer;
-  transition:background .2s var(--ease);
+  font-family:var(--font);
 }
-.history-panel-close:hover{ background:rgba(244,242,237,.18); }
+@media (orientation:portrait){#slide1{--k:calc(100vw / 1900);--gap:calc(var(--k) * 240)}#slide1 .layer{--xa:var(--xp)!important}}
+:where(#slide1) button{font:inherit;color:inherit;background:none;border:0;text-align:left}
+#slide1 :focus-visible{outline:2px solid var(--white);outline-offset:3px}
+#slide1 .noise{position:absolute;inset:0;z-index:50;pointer-events:none;opacity:.05;background-image:var(--noise)}
 
-.history-panel-title{
-  font-family:var(--display); font-weight:600;
-  font-size:16px;
-  margin:0 0 14px;
-  padding-right:22px;
-  color:var(--white);
+/* gradient + noise yang memudar jadi hitam di tepi bawah halaman ini */
+#slide1 .fade-b{
+  position:absolute;left:0;right:0;bottom:0;height:24vh;z-index:15;pointer-events:none;isolation:isolate;
+  background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,.35) 35%,rgba(0,0,0,.8) 75%,#000 100%);
 }
-
-.history-panel-tabs{
-  display:flex; gap:8px;
-  margin:0 0 14px;
-  padding-right:22px;
-}
-.history-tab-btn{
-  flex:1;
-  border:1px solid rgba(244,242,237,.2);
-  background:transparent;
-  color:rgba(244,242,237,.65);
-  font-family:var(--body);
-  font-size:11.5px;
-  letter-spacing:.05em;
-  text-transform:uppercase; /* SKILLS / SOFTWARE full kapital */
-  padding:7px 0;
-  border-radius:999px;
-  cursor:pointer;
-  transition:background .25s var(--ease), color .25s var(--ease);
-}
-.history-tab-btn.is-active{
-  background:var(--white);
-  color:var(--black);
-  border-color:var(--white);
+#slide1 .fade-b::after{
+  content:"";position:absolute;inset:0;background:var(--noise);opacity:.3;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 45%,rgba(0,0,0,.35) 100%);
+  mask-image:linear-gradient(to bottom,transparent 0%,#000 45%,rgba(0,0,0,.35) 100%);
 }
 
-.history-panel-body{
-  overflow-y:auto;
-  max-height:calc(68vh - 100px); /* biar riwayat kerja yang panjang bisa di-scroll */
-  display:flex; flex-direction:column; gap:12px;
-  padding-right:6px;
+/* ---------- layers ---------- */
+#slide1 .archive{position:absolute;inset:0;overflow:hidden}
+#slide1 .layer{
+  --xa:var(--x);--xl:calc(var(--k) * var(--xa));
+  --top:calc(var(--y) * 1vh - var(--th));--cy:var(--top);
+  position:absolute;left:0;right:0;top:var(--top);bottom:min(0px,calc(var(--gap) - var(--top)));z-index:var(--z);display:block;width:100%;
+  pointer-events:none;transition:transform 1.05s var(--io);will-change:transform;
 }
-/* PENTING: harus ada ini, atau atribut [hidden] kalah sama "display:flex"
-   di atas (spesifisitasnya sama, jadi yang belakangan menang) -> akibatnya
-   isi Skills & Software numpuk kelihatan bareng padahal salah satunya
-   seharusnya disembunyikan. */
-.history-panel-body[hidden]{ display:none; }
-.history-panel-body::-webkit-scrollbar{ width:5px; }
-.history-panel-body::-webkit-scrollbar-track{ background:transparent; }
-.history-panel-body::-webkit-scrollbar-thumb{ background:rgba(244,242,237,.25); border-radius:4px; }
+#slide1 .shape{position:absolute;inset:0;filter:drop-shadow(0 calc(var(--k) * -22) calc(var(--k) * 30) rgba(0,0,0,.85))}
+#slide1 .fill{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 130vw 95vh at 50% 0%,#242426 0%,#1b1b1d 45%,#121214 100%);
+  -webkit-mask-image:var(--tabmask),linear-gradient(#000,#000);mask-image:var(--tabmask),linear-gradient(#000,#000);
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-size:var(--tw) var(--th),100% calc(100% - var(--th) + 1px);mask-size:var(--tw) var(--th),100% calc(100% - var(--th) + 1px);
+  -webkit-mask-position:var(--xl) 0,0 calc(var(--th) - 1px);mask-position:var(--xl) 0,0 calc(var(--th) - 1px);
+}
+#slide1 .fill::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,0) 0,rgba(0,0,0,.93) 62vh);opacity:0;transition:opacity 1s ease .25s}
+#slide1 .fill::after{content:"";position:absolute;inset:0;background:var(--noise);opacity:.12}
+#slide1 .layer.open .fill::before{opacity:1}
+#slide1 .outline{position:absolute;left:var(--xl);top:0;width:var(--tw);height:var(--th);overflow:visible;fill:none;stroke:var(--line);stroke-linejoin:round;stroke-width:var(--sw)}
+#slide1 .outline path{vector-effect:non-scaling-stroke}
+#slide1 .rule{position:absolute;top:calc(var(--th) - var(--sw) / 2);height:var(--sw);background:var(--line)}
+#slide1 .rule.l{left:0;width:var(--xl)}
+#slide1 .rule.r{left:calc(var(--xl) + var(--tw));right:0}
 
-.history-list-item{
-  padding-bottom:12px;
-  border-bottom:1px solid rgba(244,242,237,.08);
+/* garis biru yang muncul dalam lingkaran lembut di sekitar kursor */
+#slide1 .blue{
+  position:absolute;left:0;right:0;top:calc(var(--k) * -40);height:calc(var(--th) + var(--k) * 80);pointer-events:none;
+  filter:drop-shadow(0 0 calc(var(--k) * 7) rgba(74,109,255,.85));
+  -webkit-mask-image:radial-gradient(circle calc(var(--k) * 380) at var(--mx) calc(var(--my) - var(--cy) + var(--k) * 40),#000 0%,rgba(0,0,0,.8) 35%,rgba(0,0,0,.25) 70%,transparent 100%);
+  mask-image:radial-gradient(circle calc(var(--k) * 380) at var(--mx) calc(var(--my) - var(--cy) + var(--k) * 40),#000 0%,rgba(0,0,0,.8) 35%,rgba(0,0,0,.25) 70%,transparent 100%);
 }
-.history-list-item:last-child{ border-bottom:none; padding-bottom:0; }
-.history-list-item h4{
-  margin:0 0 2px;
-  font-family:var(--display); font-weight:600;
-  font-size:13px; color:var(--white);
-}
-.history-list-item span{
-  display:block;
-  font-family:var(--mono);
-  font-size:10.5px;
-  color:var(--gray);
-  margin-bottom:4px;
-}
-.history-list-item p{
-  margin:0;
-  font-size:12px; line-height:1.5;
-  color:rgba(244,242,237,.75);
-}
-.history-list-item--compact span{ margin-bottom:0; }
-.history-list-item--plain{
-  font-size:13px;
-  color:rgba(244,242,237,.9);
-  padding:8px 0;
-  border-bottom:1px solid rgba(244,242,237,.08);
-}
-.history-list-item--plain:last-child{ border-bottom:none; }
+#slide1 .blue>*{transform:translateY(calc(var(--k) * 40))}
+#slide1 .blue .outline{stroke:var(--blue-line)}
+#slide1 .blue .rule{background:var(--blue-line)}
 
-@media (max-width:720px){
-  .history-panel{ width:min(78vw, 320px); }
+#slide1 .hit{position:absolute;left:0;right:0;top:var(--th);bottom:0;pointer-events:auto}
+#slide1 .label{
+  position:absolute;left:var(--xl);top:0;width:var(--tw);height:var(--th);padding-top:calc(var(--k) * 26);
+  display:flex;align-items:center;justify-content:center;white-space:nowrap;pointer-events:auto;
+  font-family:var(--font);font-weight:400;font-size:calc(var(--k) * 124);line-height:1;text-transform:uppercase;letter-spacing:.01em;
+  color:var(--text);transition:color .35s ease;
 }
+#slide1 button.layer:hover .label,#slide1 button.layer:focus-visible .label,#slide1 .layer.open .label{color:var(--white)}
+#slide1 button.layer:focus-visible{outline:none}
+
+/* ---------- animation states ---------- */
+#slide1 .archive:not(.in) .layer{transform:translateY(105vh)}
+#slide1 .archive.in:not(.settled) .layer{transition:transform 1.35s var(--out) calc(var(--z) * .24s + .1s)}
+#slide1 .archive:not(.settled) :is(.hit,.label){pointer-events:none}
+#slide1 .layer.open{--cy:var(--gap);transform:translateY(calc(var(--gap) - var(--top)))}
+#slide1 .layer.sink{transform:translateY(110vh)}
+#slide1 .archive.is-open .layer.open{transition-delay:0s}
+#slide1 .archive.is-open .layer:not(.open){transition-delay:calc((4 - var(--z)) * .06s)}
+#slide1 .archive.settled:not(.is-open) .layer{transition:transform .95s var(--out) calc(var(--z) * .05s)}
+#slide1 .archive.settled:not(.is-open) .layer.leaving{transition-delay:0s}
+
+/* ---------- isi detail ---------- */
+#slide1 .view{position:absolute;inset:0;z-index:20;pointer-events:none;visibility:hidden;transition:visibility 0s .3s}
+#slide1 .view.on{visibility:visible;transition:none}
+#slide1 .vscroll{position:absolute;left:0;right:0;bottom:var(--vb,0px);top:calc(var(--gap) + var(--th));overflow-y:auto;pointer-events:auto}
+#slide1 .vbody{padding:calc(var(--k) * 52) max(18px,calc(var(--k) * 144)) calc(env(safe-area-inset-bottom,0px) + 120px)}
+#slide1 .view.partial .vscroll{overflow:hidden}
+#slide1 .view.partial .vbody{padding-bottom:0}
+#slide1 .list{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:calc(var(--k) * 92) calc(var(--k) * 106)}
+#slide1 .list li{opacity:0;transform:translateY(24px);transition:opacity .25s ease,transform .25s ease}
+#slide1 .view.on .list li{opacity:1;transform:none;transition:opacity .8s var(--out),transform .9s var(--out);transition-delay:calc(.85s + var(--i) * .1s)}
+#slide1 .list h2{font-family:var(--font);font-size:max(1.1rem,calc(var(--k) * 64));font-weight:400;letter-spacing:.005em;line-height:1.15}
+#slide1 .place{margin-top:calc(var(--k) * 14);font-family:var(--body);font-size:max(.78rem,calc(var(--k) * 34));letter-spacing:.06em;color:#cfcfcf}
+#slide1 .note{margin-top:calc(var(--k) * 22);max-width:62ch;font-family:var(--body);font-size:max(.84rem,calc(var(--k) * 36));line-height:1.55;color:#f0f0f0}
+
+#slide1 .back{
+  position:absolute;left:24px;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);width:48px;height:48px;
+  display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);border-radius:50%;
+  opacity:0;pointer-events:none;transition:opacity .3s ease,background .3s,transform .3s;
+}
+#slide1 .view.on .back{opacity:1;pointer-events:auto;transition:opacity .6s ease 1s,background .3s,transform .3s}
+#slide1 .view.on .back:hover{background:rgba(255,255,255,.16);transform:scale(1.06)}
+#slide1 .back img{width:20px;height:20px;filter:brightness(0) invert(1)}
+
+@media (max-width:900px){#slide1 .list{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){#slide1 *,#slide1 *::before,#slide1 *::after{transition-duration:.01s!important;transition-delay:0s!important}}
 
 /* =====================================================================
    PAKSA MODE HORIZONTAL DI HP
@@ -1551,3 +1518,22 @@ html.started #page1{ display:none; }
   z-index:1;
 }
 #servicesModal .close-x{ z-index:110; }
+/* =====================================================================
+   PERFORMA & SCROLL HALUS (revisi)
+===================================================================== */
+/* film grain statis: 1 tile kecil yang diulang (tanpa blend-mode, tanpa animasi) */
+#grain{
+  position:fixed; inset:0; z-index:9998; pointer-events:none; opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size:160px 160px;
+}
+/* halaman yang jauh dari layar tidak ikut di-render -> scroll lebih ringan */
+.profile-slide, .closing-slide{ content-visibility:auto; contain-intrinsic-size:auto 100vh; }
+/* animasi melayang kotak pilihan berhenti saat halamannya tidak terlihat */
+#page4:not(.on-screen) .choose-card__float{ animation-play-state:paused; }
+/* HP / layar sentuh: scroll native + snap per halaman (desktop diatur JS) */
+@media (hover:none){
+  html.started:not(.no-snap){ scroll-snap-type:y mandatory; }
+  .profile-slide, .closing-slide{ scroll-snap-align:start; scroll-snap-stop:always; }
+}
+html.no-snap{ scroll-snap-type:none !important; }
